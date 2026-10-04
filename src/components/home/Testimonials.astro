@@ -1,0 +1,41 @@
+---
+import { TESTIMONIALS } from '@/data/home';
+import Container from '../layout/Container.astro';
+import Icon from '../ui/Icon.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+const STARS = 5;
+---
+
+<section aria-labelledby="testimonios-titulo" class="py-8 lg:py-12">
+  <Container>
+    <div data-reveal>
+      <SectionHeading
+        id="testimonios-titulo"
+        eyebrow="Testimonios"
+        title="Lo que dicen quienes ya nos eligieron"
+        align="center"
+      />
+    </div>
+    <ul class="mt-5 grid gap-3 md:grid-cols-3" data-reveal>
+      {TESTIMONIALS.map((testimonial) => (
+        <li class="h-full">
+          <figure class="flex h-full flex-col rounded-lg bg-white p-3 shadow-card">
+            <p class="flex gap-0.5 text-gold-500" role="img" aria-label={`${STARS} de 5 estrellas`}>
+              {Array.from({ length: STARS }, () => (
+                <Icon name="star" class="size-2" />
+              ))}
+            </p>
+            <blockquote class="mt-2 flex-1 text-ink">
+              <p>“{testimonial.quote}”</p>
+            </blockquote>
+            <figcaption class="mt-3 border-t border-stone pt-2 text-sm">
+              <span class="block font-semibold text-navy-900">{testimonial.name}</span>
+              <span class="text-taupe">{testimonial.role}</span>
+            </figcaption>
+          </figure>
+        </li>
+      ))}
+    </ul>
+  </Container>
+</section>

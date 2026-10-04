@@ -16,9 +16,6 @@ export default defineConfig({
       filter: (page) => !page.includes('/404'),
     }),
   ],
-  image: {
-    layout: 'constrained',
-  },
   fonts: [
     {
       provider: fontProviders.local(),

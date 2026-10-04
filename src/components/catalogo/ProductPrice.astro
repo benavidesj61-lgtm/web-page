@@ -1,0 +1,29 @@
+---
+import { discountPercentage, formatPrice } from '@/utils/price';
+
+interface Props {
+  price: number;
+  previousPrice?: number | undefined;
+  size?: 'md' | 'lg';
+}
+
+const { price, previousPrice, size = 'md' } = Astro.props;
+---
+
+<p class="flex flex-wrap items-baseline gap-x-1">
+  <span class="sr-only">{previousPrice ? 'Precio de oferta:' : 'Precio:'}</span>
+  <span class:list={['font-semibold text-navy-900', size === 'lg' ? 'text-3xl' : 'text-lg']}>
+    {formatPrice(price)}
+  </span>
+  {previousPrice && (
+    <>
+      <span class="sr-only">Precio anterior:</span>
+      <del class:list={['text-taupe', size === 'lg' ? 'text-lg' : 'text-sm']}>
+        {formatPrice(previousPrice)}
+      </del>
+      <span class="text-sm font-semibold text-gold-700">
+        Ahorra {discountPercentage(price, previousPrice)} %
+      </span>
+    </>
+  )}
+</p>

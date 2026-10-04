@@ -1,22 +1,26 @@
 ---
-import Container from '@/components/layout/Container.astro';
-import Badge from '@/components/ui/Badge.astro';
-import Button from '@/components/ui/Button.astro';
-import BaseLayout from '@/layouts/BaseLayout.astro';
+import Benefits from '@/components/home/Benefits.astro';
+import Faq from '@/components/home/Faq.astro';
+import FeaturedCategories from '@/components/home/FeaturedCategories.astro';
+import FeaturedProducts from '@/components/home/FeaturedProducts.astro';
+import FinalCta from '@/components/home/FinalCta.astro';
+import Hero from '@/components/home/Hero.astro';
+import Testimonials from '@/components/home/Testimonials.astro';
 import { SITE } from '@/config/site';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildLocalBusinessSchema } from '@/utils/jsonld';
 ---
 
-<BaseLayout title={SITE.name} description={SITE.description}>
-  <Container class="py-8">
-    <h1 class="text-5xl">LE SCENT</h1>
-    <div class="mt-3 flex flex-wrap gap-2">
-      <Button>Primario</Button>
-      <Button variant="accent">Acento</Button>
-      <Button variant="outline">Contorno</Button>
-      <Button disabled>Deshabilitado</Button>
-      <Badge variant="new">Nuevo</Badge>
-      <Badge variant="sale">Oferta</Badge>
-      <Badge variant="soldout">Agotado</Badge>
-    </div>
-  </Container>
+<BaseLayout
+  title="Perfumes y decants originales en El Salvador"
+  description={SITE.description}
+  jsonLd={buildLocalBusinessSchema()}
+>
+  <Hero />
+  <FeaturedCategories />
+  <FeaturedProducts />
+  <Benefits />
+  <Testimonials />
+  <Faq />
+  <FinalCta />
 </BaseLayout>

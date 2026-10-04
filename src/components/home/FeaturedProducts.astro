@@ -1,0 +1,39 @@
+---
+import { getFeaturedProducts } from '@/utils/products';
+import ProductCard from '../catalogo/ProductCard.astro';
+import Container from '../layout/Container.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+const products = await getFeaturedProducts(4);
+---
+
+{products.length > 0 && (
+  <section aria-labelledby="destacados-titulo" class="py-8 lg:py-12">
+    <Container>
+      <div class="flex flex-col gap-3 md:flex-row md:items-end md:justify-between" data-reveal>
+        <SectionHeading
+          id="destacados-titulo"
+          eyebrow="Selección LE SCENT"
+          title="Los favoritos de nuestros clientes"
+          description="Fragancias que recomendamos con total confianza para uso personal o para regalar."
+        />
+        <Button href="/catalogo/" variant="outline" class="shrink-0 self-start md:self-auto">
+          Ver todo el catálogo
+          <Icon
+            name="arrow-right"
+            class="size-2 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+          />
+        </Button>
+      </div>
+      <ul class="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4" data-reveal>
+        {products.map((product) => (
+          <li>
+            <ProductCard product={product} />
+          </li>
+        ))}
+      </ul>
+    </Container>
+  </section>
+)}
