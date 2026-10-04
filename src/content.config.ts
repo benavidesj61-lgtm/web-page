@@ -6,7 +6,13 @@ import { CATEGORY_SLUGS } from './data/categories';
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
 const productos = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/productos' }),
+  loader: glob({
+    pattern: '**/*.md',
+    base: './src/content/productos',
+    // Key entries by file name: the default (frontmatter slug) silently drops duplicated slugs,
+    // which would hide them from the uniqueness check in utils/products.ts.
+    generateId: ({ entry }) => entry.replace(/\.md$/, ''),
+  }),
   schema: ({ image }) =>
     z
       .object({
