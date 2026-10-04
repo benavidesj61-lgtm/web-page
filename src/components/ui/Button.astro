@@ -1,0 +1,84 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+export type ButtonVariant = 'primary' | 'outline' | 'light' | 'outline-light' | 'link';
+export type ButtonSize = 'md' | 'lg';
+
+interface BaseProps {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  fullWidth?: boolean;
+  class?: string;
+}
+
+type LinkProps = BaseProps &
+  Omit<HTMLAttributes<'a'>, 'class'> & {
+    href: string;
+    /** Opens in a new tab with safe rel attributes. */
+    external?: boolean;
+  };
+
+type NativeButtonProps = BaseProps &
+  Omit<HTMLAttributes<'button'>, 'class'> & {
+    href?: never;
+    external?: never;
+  };
+
+type Props = LinkProps | NativeButtonProps;
+
+const {
+  variant = 'primary',
+  size = 'md',
+  fullWidth = false,
+  class: className,
+  external = false,
+  ...rest
+} = Astro.props;
+
+/*
+ * Colors swap instantly on hover (no color transition); only `transform` animates on press,
+ * per the motion rules. `primary`/`outline` sit on light backgrounds, `light`/`outline-light`
+ * on black sections.
+ */
+const VARIANTS: Record<ButtonVariant, string> = {
+  primary:
+    'bg-noir-950 text-white border border-noir-950 hover:bg-noir-700 hover:border-noir-700 active:bg-noir-800',
+  outline:
+    'border border-noir-950 text-noir-950 bg-transparent hover:bg-noir-950 hover:text-white active:bg-noir-800',
+  light:
+    'bg-white text-noir-950 border border-white hover:bg-noir-100 hover:border-noir-100 active:bg-noir-200',
+  'outline-light':
+    'border border-white/70 text-white bg-transparent hover:bg-white hover:text-noir-950 hover:border-white active:bg-noir-100',
+  link: 'text-noir-950 underline decoration-1 underline-offset-[6px] hover:decoration-2 px-0',
+};
+
+const SIZES: Record<ButtonSize, string> = {
+  md: 'min-h-6 px-3 text-sm',
+  lg: 'min-h-7 px-4 text-sm',
+};
+
+const classes = [
+  'inline-flex items-center justify-center gap-1 rounded-xs font-medium tracking-[0.14em] uppercase',
+  'transition-transform duration-150 ease-out active:translate-y-px',
+  'disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0 aria-disabled:pointer-events-none aria-disabled:opacity-50',
+  VARIANTS[variant],
+  variant === 'link' ? 'min-h-6' : SIZES[size],
+  fullWidth && 'w-full',
+  className,
+];
+---
+
+{'href' in rest && rest.href !== undefined ? (
+  <a
+    class:list={classes}
+    {...rest}
+    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+  >
+    <slot />
+    {external && <span class="sr-only">(abre en una pestaña nueva)</span>}
+  </a>
+) : (
+  <button type="button" class:list={classes} {...rest}>
+    <slot />
+  </button>
+)}

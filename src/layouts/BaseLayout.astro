@@ -1,0 +1,51 @@
+---
+import { Font } from 'astro:assets';
+import Footer from '@/components/layout/Footer.astro';
+import Header from '@/components/layout/Header.astro';
+import SEO, { type SEOProps } from '@/components/layout/SEO.astro';
+import SkipLink from '@/components/layout/SkipLink.astro';
+import { SITE } from '@/data/site';
+import '@/styles/global.css';
+
+type Props = SEOProps;
+
+const seo = Astro.props;
+---
+
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="format-detection" content="telephone=no" />
+    <!-- Runs before first paint so reveal-on-scroll never flashes visible content as hidden. -->
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+    <Font cssVariable="--font-inter" preload />
+    <Font cssVariable="--font-playfair" />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <SEO {...seo} />
+  </head>
+  <body class="flex min-h-dvh flex-col">
+    <SkipLink />
+    <Header />
+    <main id="contenido" tabindex="-1" class="flex-1 focus:outline-none">
+      <slot />
+    </main>
+    <Footer />
+
+    <script>
+      import { initReveal, updateCurrentYear } from '../scripts/reveal';
+      initReveal();
+      updateCurrentYear();
+    </script>
+  </body>
+</html>

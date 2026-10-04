@@ -1,0 +1,32 @@
+---
+interface Props {
+  id: string;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  align?: 'left' | 'center';
+  /** Use on black sections: lighter eyebrow and description colors keep AA contrast. */
+  dark?: boolean;
+  class?: string;
+}
+
+const {
+  id,
+  eyebrow,
+  title,
+  description,
+  align = 'left',
+  dark = false,
+  class: className,
+} = Astro.props;
+---
+
+<div class:list={[align === 'center' && 'mx-auto text-center', 'max-w-2xl', className]}>
+  {eyebrow && <p class:list={['eyebrow', dark ? 'text-noir-300' : 'text-noir-500']}>{eyebrow}</p>}
+  <h2 id={id} class="mt-1.5 text-3xl">
+    {title}
+  </h2>
+  {description && (
+    <p class:list={['mt-2 text-lg', dark ? 'text-noir-300' : 'text-noir-600']}>{description}</p>
+  )}
+</div>

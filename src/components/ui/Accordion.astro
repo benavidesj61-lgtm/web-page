@@ -1,0 +1,33 @@
+---
+import Icon from './Icon.astro';
+
+export interface AccordionItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: readonly AccordionItem[];
+  /** Native exclusive accordion: opening one item closes the others. */
+  name: string;
+}
+
+const { items, name } = Astro.props;
+---
+
+<!-- <details>/<summary> are keyboard and screen-reader accessible without extra ARIA. -->
+<div class="border-t border-noir-200">
+  {items.map((item) => (
+    <details name={name} class="group border-b border-noir-200">
+      <summary class="flex min-h-7 cursor-pointer list-none items-center justify-between gap-2 py-2 text-left font-display text-lg text-noir-950 hover:text-noir-600 [&::-webkit-details-marker]:hidden">
+        <span>{item.question}</span>
+        <span class="inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-noir-300 transition-transform duration-200 ease-out group-open:rotate-180">
+          <Icon name="chevron-down" class="size-2" />
+        </span>
+      </summary>
+      <div class="pr-5 pb-3 text-noir-600">
+        <p>{item.answer}</p>
+      </div>
+    </details>
+  ))}
+</div>

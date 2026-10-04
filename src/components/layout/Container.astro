@@ -1,0 +1,22 @@
+---
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends Omit<HTMLAttributes<'div'>, 'class'> {
+  class?: string;
+  /** Narrow container for long-form text and forms. */
+  narrow?: boolean;
+}
+
+const { class: className, narrow = false, ...rest } = Astro.props;
+---
+
+<div
+  class:list={[
+    'mx-auto w-full px-2 sm:px-3 lg:px-4',
+    narrow ? 'max-w-3xl' : 'max-w-7xl',
+    className,
+  ]}
+  {...rest}
+>
+  <slot />
+</div>

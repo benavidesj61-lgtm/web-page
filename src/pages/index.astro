@@ -1,14 +1,22 @@
 ---
-import '@/styles/global.css';
+import Container from '@/components/layout/Container.astro';
+import Badge from '@/components/ui/Badge.astro';
+import Button from '@/components/ui/Button.astro';
+import { SITE } from '@/data/site';
+import BaseLayout from '@/layouts/BaseLayout.astro';
 ---
 
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>LE SCENT</title>
-  </head>
-  <body>
-    <h1>LE SCENT</h1>
-  </body>
-</html>
+<BaseLayout title="Perfumes y decants originales en El Salvador" description={SITE.description}>
+  <Container class="py-8">
+    <h1 class="text-5xl">LE SCENT</h1>
+    <div class="mt-3 flex flex-wrap gap-2">
+      <Button href="/catalogo/">Ver catálogo</Button>
+      <Button href="/contacto/" variant="outline">
+        Contáctanos
+      </Button>
+      <Badge variant="new">Nuevo</Badge>
+      <Badge variant="sale">Oferta</Badge>
+      <Badge variant="soldout">Agotado</Badge>
+    </div>
+  </Container>
+</BaseLayout>
