@@ -1,0 +1,95 @@
+---
+import { Picture } from 'astro:assets';
+import { CATEGORIES } from '@/data/categories';
+import { formatPrice } from '@/utils/price';
+import { getProductBadges, getProductUrl, type Product } from '@/utils/products';
+import { normalizeSearchText } from '@/utils/search';
+import Badge from '../ui/Badge.astro';
+import Card from '../ui/Card.astro';
+import Icon from '../ui/Icon.astro';
+import ProductPrice from './ProductPrice.astro';
+
+interface Props {
+  product: Product;
+  headingLevel?: 'h2' | 'h3';
+}
+
+const { product, headingLevel: Heading = 'h3' } = Astro.props;
+const { data } = product;
+const [cover] = data.imagenes;
+const url = getProductUrl(product);
+const badges = getProductBadges(product);
+const category = CATEGORIES[data.categoria];
+const lowestDecant = data.decants?.reduce((min, decant) => Math.min(min, decant.precio), Infinity);
+const caption = data.contenidoMl ? `Sellado · ${data.contenidoMl} ml` : 'Precio del set';
+
+// Matches the grid: 1 col < 640px, 2 cols, 3 cols ≥ 1024px, 4 cols ≥ 1280px (container max 1280px).
+const SIZES =
+  '(min-width: 1280px) 286px, (min-width: 1024px) calc((100vw - 112px) / 3), (min-width: 640px) calc((100vw - 72px) / 2), calc(100vw - 32px)';
+---
+
+<Card
+  interactive
+  class="h-full border border-noir-100"
+  data-product
+  data-category={data.categoria}
+  data-search={normalizeSearchText(
+    [data.nombre, data.marca, category.name, ...(data.etiquetas ?? [])].join(' '),
+  )}
+  data-price={data.precio ?? ''}
+  data-date={data.fechaPublicacion.getTime()}
+  data-name={normalizeSearchText(data.nombre)}
+>
+  <div class="overflow-hidden bg-noir-950">
+    {cover && (
+      <Picture
+        src={cover.src}
+        alt={cover.alt}
+        formats={['avif', 'webp']}
+        widths={[320, 480, 640, 800]}
+        sizes={SIZES}
+        width={640}
+        height={896}
+        fit="cover"
+        position="center"
+        loading="lazy"
+        decoding="async"
+        class="aspect-5/7 h-auto w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+      />
+    )}
+  </div>
+
+  <div class="flex flex-1 flex-col p-2 sm:p-3">
+    {badges.length > 0 && (
+      <ul class="mb-1.5 flex flex-wrap gap-1" aria-label="Estado del producto">
+        {badges.map((badge) => (
+          <li>
+            <Badge variant={badge.variant}>{badge.label}</Badge>
+          </li>
+        ))}
+      </ul>
+    )}
+    <p class="eyebrow text-noir-500">
+      {category.shortName} · {data.marca}
+    </p>
+    <Heading class="mt-1 font-display text-xl leading-snug text-noir-950">
+      <!-- Stretched link: the whole card is clickable while keeping a single, named link. -->
+      <a href={url} class="after:absolute after:inset-0 after:z-10 focus-visible:outline-none">
+        {data.nombre}
+      </a>
+    </Heading>
+
+    <div class="mt-auto flex items-end justify-between gap-2 pt-2">
+      <ProductPrice price={data.precio} previousPrice={data.precioAnterior} caption={caption} />
+      <Icon
+        name="arrow-right"
+        class="mb-1 size-2.5 text-noir-950 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+      />
+    </div>
+    {lowestDecant !== undefined && Number.isFinite(lowestDecant) && (
+      <p class="mt-1 border-t border-noir-100 pt-1 text-sm text-noir-600">
+        Decants desde <span class="font-semibold text-noir-950">{formatPrice(lowestDecant)}</span>
+      </p>
+    )}
+  </div>
+</Card>

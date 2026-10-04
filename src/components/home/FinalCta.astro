@@ -1,0 +1,32 @@
+---
+import { CONTACT } from '@/data/site';
+import { PHONE_HREF } from '@/utils/contact';
+import Container from '../layout/Container.astro';
+import Button from '../ui/Button.astro';
+import Texture from '../ui/Texture.astro';
+---
+
+<section
+  aria-labelledby="cta-titulo"
+  class="on-dark relative isolate overflow-hidden border-b border-noir-800 bg-noir-950 py-8 lg:py-12"
+>
+  <Texture />
+  <Container class="relative text-center" data-reveal>
+    <p class="eyebrow text-noir-300">Cotizaciones para empresas y particulares</p>
+    <h2 id="cta-titulo" class="mx-auto mt-2 max-w-3xl text-4xl">
+      Cuéntenos qué necesita y le enviamos una propuesta a la medida
+    </h2>
+    <p class="mx-auto mt-3 max-w-2xl text-lg text-noir-200">
+      Regalos corporativos, pedidos por volumen o una recomendación personal: complete el formulario
+      y un asesor le responderá en un plazo máximo de un día hábil.
+    </p>
+    <div class="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
+      <Button href="/contacto/" variant="light" size="lg">
+        Solicitar cotización
+      </Button>
+      <Button href={PHONE_HREF} variant="outline-light" size="lg">
+        Llamar al {CONTACT.phone.display}
+      </Button>
+    </div>
+  </Container>
+</section>

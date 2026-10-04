@@ -1,0 +1,74 @@
+---
+import { Picture } from 'astro:assets';
+import { CATEGORY_IMAGES } from '@/data/category-images';
+import { CATEGORY_LIST } from '@/data/categories';
+import { countProductsByCategory } from '@/utils/products';
+import Container from '../layout/Container.astro';
+import Card from '../ui/Card.astro';
+import Icon from '../ui/Icon.astro';
+import SectionHeading from '../ui/SectionHeading.astro';
+
+const counts = await countProductsByCategory();
+---
+
+<section aria-labelledby="categorias-titulo" class="py-6 lg:py-10">
+  <Container>
+    <SectionHeading
+      id="categorias-titulo"
+      eyebrow="Colecciones"
+      title="Encuentre su fragancia ideal"
+      description="Explore nuestras colecciones de perfumería de diseñador, perfumería árabe y sets pensados para regalar."
+    />
+    <ul class="mt-4 grid gap-3 md:grid-cols-3" data-reveal>
+      {CATEGORY_LIST.map((category) => {
+        const image = CATEGORY_IMAGES[category.slug];
+        return (
+          <li>
+            <Card interactive class="h-full">
+              <div class="overflow-hidden bg-noir-950">
+                <Picture
+                  src={image.src}
+                  alt={image.alt}
+                  formats={['avif', 'webp']}
+                  widths={[360, 560, 760]}
+                  sizes="(min-width: 1280px) 395px, (min-width: 768px) calc((100vw - 96px) / 3), calc(100vw - 32px)"
+                  width={760}
+                  height={950}
+                  fit="cover"
+                  position="center"
+                  loading="lazy"
+                  decoding="async"
+                  class="aspect-4/5 h-auto w-full object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03]"
+                />
+              </div>
+              <div class="flex flex-1 flex-col border-x border-b border-noir-100 p-3">
+                <p class="eyebrow text-noir-500">
+                  {counts[category.slug]} {counts[category.slug] === 1 ? 'producto' : 'productos'}
+                </p>
+                <h3 class="mt-1 text-2xl">
+                  <a
+                    href={`/catalogo/?categoria=${category.slug}`}
+                    class="after:absolute after:inset-0 after:z-10 focus-visible:outline-none"
+                  >
+                    {category.name}
+                  </a>
+                </h3>
+                <p class="mt-1 text-noir-600">{category.description}</p>
+                <span
+                  class="mt-auto flex items-center gap-1 pt-2 text-sm font-medium tracking-[0.12em] text-noir-950 uppercase"
+                  aria-hidden="true"
+                >
+                  Explorar
+                  <Icon
+                    name="arrow-right"
+                    class="size-2 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
+                  />
+                </span>
+              </div>
+            </Card>
+          </li>
+        );
+      })}
+    </ul>
+  </Container>
+</section>

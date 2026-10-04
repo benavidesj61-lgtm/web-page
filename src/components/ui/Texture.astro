@@ -1,0 +1,23 @@
+---
+import { Picture } from 'astro:assets';
+import texture from '@/assets/marca/textura.jpg';
+
+interface Props {
+  /** Eager only when the textured section is above the fold. */
+  priority?: boolean;
+}
+
+const { priority = false } = Astro.props;
+---
+
+<!-- Decorative background echoing the brand's black crumpled-paper artwork. -->
+<Picture
+  src={texture}
+  alt=""
+  formats={['avif', 'webp']}
+  widths={[640, 1024, 1600]}
+  sizes="100vw"
+  loading={priority ? 'eager' : 'lazy'}
+  decoding="async"
+  class="pointer-events-none absolute inset-0 size-full object-cover"
+/>

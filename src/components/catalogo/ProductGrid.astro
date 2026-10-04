@@ -1,0 +1,26 @@
+---
+import type { Product } from '@/utils/products';
+import ProductCard from './ProductCard.astro';
+
+interface Props {
+  products: readonly Product[];
+  /** Accessible name for the list. */
+  label: string;
+  headingLevel?: 'h2' | 'h3';
+  class?: string;
+}
+
+const { products, label, headingLevel = 'h3', class: className } = Astro.props;
+---
+
+<ul
+  class:list={['grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4', className]}
+  aria-label={label}
+  data-product-grid
+>
+  {products.map((product) => (
+    <li data-product-item>
+      <ProductCard product={product} headingLevel={headingLevel} />
+    </li>
+  ))}
+</ul>

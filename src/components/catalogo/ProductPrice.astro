@@ -1,0 +1,38 @@
+---
+import { formatPrice, PRICE_ON_REQUEST_LABEL } from '@/utils/price';
+
+interface Props {
+  price: number | null;
+  previousPrice?: number | undefined;
+  size?: 'md' | 'lg';
+  /** Short caption before the price, e.g. "Sellado · 100 ml". */
+  caption?: string | undefined;
+  class?: string;
+}
+
+const { price, previousPrice, size = 'md', caption, class: className } = Astro.props;
+---
+
+<div class:list={['flex flex-col', className]}>
+  {caption && <span class="text-xs tracking-[0.12em] text-noir-500 uppercase">{caption}</span>}
+  <p class="flex flex-wrap items-baseline gap-x-1">
+    {price === null ? (
+      <span class:list={['font-medium text-noir-950', size === 'lg' ? 'text-2xl' : 'text-base']}>
+        {PRICE_ON_REQUEST_LABEL}
+      </span>
+    ) : (
+      <>
+        <span class:list={['font-semibold text-noir-950', size === 'lg' ? 'text-3xl' : 'text-lg']}>
+          <span class="sr-only">{previousPrice ? 'Precio de oferta: ' : 'Precio: '}</span>
+          {formatPrice(price)}
+        </span>
+        {previousPrice && (
+          <del class:list={['text-noir-500', size === 'lg' ? 'text-lg' : 'text-sm']}>
+            <span class="sr-only">Precio anterior: </span>
+            {formatPrice(previousPrice)}
+          </del>
+        )}
+      </>
+    )}
+  </p>
+</div>
