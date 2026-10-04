@@ -1,65 +1,113 @@
 # LE SCENT · Sitio web y catálogo
 
 Sitio corporativo y catálogo de **LE SCENT**, perfumes y decants originales en El Salvador.
-Está construido con Astro (sitio estático), TypeScript, Tailwind CSS y Netlify Forms, y obtiene
-95 o más en Lighthouse en Rendimiento, Accesibilidad, Buenas Prácticas y SEO.
+Está construido con Astro (sitio estático), TypeScript y Tailwind CSS, más una sola función de
+servidor en Netlify para el formulario de contacto. Obtiene 95 o más en Lighthouse en
+Rendimiento, Accesibilidad, Buenas Prácticas y SEO. Las medidas de seguridad están en
+[`SECURITY.md`](SECURITY.md).
 
-- **Inicio**: hero, colecciones, productos destacados, beneficios, testimonios, preguntas frecuentes y llamada a la acción.
-- **Catálogo** (`/catalogo/`): filtros por categoría, búsqueda, ordenamiento y botón «Cargar más». Los filtros se guardan en la URL, así que puede compartir un resultado.
-- **Detalle de producto** (`/catalogo/<slug>/`): galería con vista ampliada, precios del frasco sellado y de los decants, características y productos relacionados.
-- **Contacto** (`/contacto/`): formulario con validación accesible, protección anti-spam, mapa y datos de contacto.
+- **Inicio**: hero, colecciones, productos destacados, «Por qué elegirnos», preguntas frecuentes y llamada a la acción.
+- **Catálogo** (`/catalogo/`): filtros por categoría, búsqueda, ordenamiento y «Cargar más». Los filtros se guardan en la URL.
+- **Detalle de producto** (`/catalogo/<slug>/`): galería con vista ampliada, precios del sellado y de los decants, características y productos relacionados.
+- **Contacto** (`/contacto/`): formulario con verificación antispam (Cloudflare Turnstile), mapa y datos de contacto.
 - **Gracias** (`/gracias/`) y **404**: no se indexan en buscadores.
 
 ---
 
 ## 1. Ejecutar el proyecto
 
-Requisitos: **Node.js 22.12 o superior** (puede usar `nvm use`, porque el proyecto incluye `.nvmrc`).
+Requisitos: **Node.js 22.12 o superior** (`nvm use` lee `.nvmrc`) y
+**[gitleaks](https://github.com/gitleaks/gitleaks#installing)**. gitleaks es obligatorio: un hook
+bloquea cualquier commit que contenga secretos.
 
 ```bash
-npm install          # instala las dependencias (solo la primera vez)
-npm run dev          # abre el sitio en http://localhost:4321
-npm run build        # verifica tipos y datos, y genera el sitio en dist/
-npm run preview      # sirve dist/ para revisar el resultado final
-npm run validate     # lint + formato + build: ejecútelo antes de publicar
+npm install          # instala dependencias y activa el hook de gitleaks
+cp .env.example .env # luego complete los valores (sección 3)
+npm run dev          # sitio en http://localhost:4321
+npm test             # pruebas de seguridad del formulario
+npm run validate     # lint + formato + pruebas + build + revisión de secretos en dist/
 ```
 
-> En local, el formulario muestra el estado de error al enviar, porque Netlify Forms solo existe una
-> vez publicado en Netlify. Es el comportamiento esperado.
+> `npm run dev` sirve las páginas, pero no la función del formulario. Para probar el envío
+> completo en local, use la CLI de Netlify: `npx netlify-cli dev`. Lee el mismo archivo `.env`.
 
 ---
 
 ## 2. Cambiar los datos del negocio
 
-Todos los datos de contacto viven en **un solo archivo: `src/data/site.ts`**. Allí se editan:
+Todos los datos públicos viven en **un solo archivo: `src/data/site.ts`**.
 
-| Dato                | Dónde                                                                                   |
-| ------------------- | --------------------------------------------------------------------------------------- |
-| Teléfono            | `CONTACT.phone.display` (texto visible) y `CONTACT.phone.e164` (formato `+503XXXXXXXX`) |
-| Correo              | `CONTACT.email`                                                                         |
-| Dirección           | `CONTACT.address.street` (si queda vacío, solo se muestra la ciudad), `city` y `region` |
-| Horario             | `OPENING_HOURS` y `CLOSED_DAYS_LABEL`                                                   |
-| Redes sociales      | `SOCIAL_LINKS`                                                                          |
-| Menú                | `NAV_ITEMS`                                                                             |
-| Tiempo de respuesta | `SITE.responseTime`                                                                     |
-| Dominio             | `SITE.url` (también en `site` dentro de `astro.config.mjs`)                             |
-
-El pie de página, la página de contacto, el mapa, los enlaces `tel:` y `mailto:` y los datos
-estructurados para Google se actualizan solos a partir de este archivo.
+| Dato                | Dónde                                                                                                   |
+| ------------------- | ------------------------------------------------------------------------------------------------------- |
+| Teléfono            | `CONTACT.phone.display` (texto visible) y `CONTACT.phone.e164` (`+503XXXXXXXX`)                         |
+| Correo              | `CONTACT.email`                                                                                         |
+| Dirección           | `CONTACT.address.street` (si queda vacío, se muestra solo «Santa Tecla, El Salvador»), `city`, `region` |
+| Horario             | `OPENING_HOURS` y `CLOSED_DAYS_LABEL`                                                                   |
+| Redes sociales      | `SOCIAL_LINKS`                                                                                          |
+| Menú                | `NAV_ITEMS`                                                                                             |
+| Tiempo de respuesta | `SITE.responseTime`                                                                                     |
+| Dominio             | `SITE.url` (también `site` en `astro.config.mjs`)                                                       |
 
 ---
 
-## 3. Agregar un producto nuevo, paso a paso
+## 3. Variables de entorno
 
-1. **Prepare las imágenes.** Use JPG o PNG en orientación vertical, idealmente de 993 × 1404 px
-   (proporción 5:7, como sus fichas actuales) o mayores. No hace falta optimizarlas: Astro genera
-   automáticamente las versiones AVIF y WebP en varios tamaños.
-2. **Copie las imágenes** a `src/assets/productos/`, con nombres en minúsculas y guiones, por ejemplo
-   `dior-sauvage.jpg`.
-3. **Duplique un producto existente** de `src/content/productos/` (por ejemplo,
-   `lattafa-yara-100-ml.md`) y renómbrelo con el mismo texto que usará como `slug`, por ejemplo
-   `dior-sauvage-100-ml.md`.
-4. **Edite el encabezado** (la parte entre `---`):
+Los secretos **nunca** van en el código. En local se guardan en `.env` (ignorado por Git); en
+producción, en Netlify: **Site configuration → Environment variables**.
+
+| Variable                    | Tipo                | Para qué sirve                                                                                    |
+| --------------------------- | ------------------- | ------------------------------------------------------------------------------------------------- |
+| `PUBLIC_TURNSTILE_SITE_KEY` | Pública             | Llave de sitio de Turnstile. El build falla si falta.                                             |
+| `TURNSTILE_SECRET_KEY`      | **Secreta**         | Verifica el token de Turnstile en el servidor.                                                    |
+| `RESEND_API_KEY`            | **Secreta**         | Envía los correos de contacto.                                                                    |
+| `CONTACT_FROM_EMAIL`        | Servidor            | Remitente, con un dominio verificado en Resend, por ejemplo `LE SCENT <contacto@lescent.com.sv>`. |
+| `CONTACT_TO_EMAIL`          | Servidor (opcional) | Quién recibe las solicitudes. Si falta, se usa `CONTACT.email`.                                   |
+
+Reglas:
+
+- Solo las variables con prefijo `PUBLIC_` llegan al navegador. **Nunca** ponga ese prefijo a una llave privada.
+- Después de cada build, `npm run check:dist` falla si algún secreto aparece en `dist/`. Netlify lo ejecuta en cada despliegue.
+
+Para desarrollo local puede usar las [llaves de prueba de Cloudflare](https://developers.cloudflare.com/turnstile/troubleshooting/testing/)
+que siempre aprueban: la de sitio `1x00000000000000000000AA` y la secreta `1x0000000000000000000000000000000AA`.
+
+---
+
+## 4. Configurar Turnstile y el envío de correos
+
+**Cloudflare Turnstile (antispam):**
+
+1. En [dash.cloudflare.com](https://dash.cloudflare.com), abra **Turnstile → Add widget**.
+2. Nombre: `LE SCENT contacto`. En **Hostnames**, agregue su dominio (por ejemplo, `lescent.com.sv`). Modo: **Managed**.
+3. Copie la **Site Key** en `PUBLIC_TURNSTILE_SITE_KEY` y la **Secret Key** en `TURNSTILE_SECRET_KEY` (en Netlify).
+
+**Resend (correo):**
+
+1. Cree una cuenta en [resend.com](https://resend.com). El plan gratuito permite 3.000 correos al mes.
+2. En **Domains**, agregue su dominio y cree en su DNS los registros SPF y DKIM que Resend indica.
+   Sin un dominio verificado, Resend solo entrega correos a la dirección dueña de la cuenta.
+3. En **API Keys**, cree una llave con permiso **Sending access** y cópiela en `RESEND_API_KEY`.
+4. Defina `CONTACT_FROM_EMAIL` con una dirección de ese dominio.
+
+**Cómo funciona el formulario:** el navegador valida los campos (solo por comodidad) y los envía en
+JSON a `/api/contacto/`. Allí el servidor:
+
+- valida todo de nuevo con Zod y rechaza cualquier campo inesperado;
+- verifica Turnstile y el tiempo mínimo de 3 segundos;
+- descarta en silencio los envíos que llenan el honeypot;
+- limita a 5 envíos por IP cada 15 minutos;
+- toma el nombre del producto del catálogo, no del formulario;
+- envía el correo con todo el contenido escapado.
+
+Al responder un correo, la respuesta va directamente al cliente (_reply-to_).
+
+---
+
+## 5. Agregar un producto nuevo
+
+1. Copie las imágenes (JPG o PNG, idealmente de 993 × 1404 px o mayores) a `src/assets/productos/`, con nombres en minúsculas y guiones.
+2. Duplique un archivo de `src/content/productos/` y renómbrelo con el `slug`, por ejemplo `dior-sauvage-100-ml.md`.
+3. Edite el encabezado:
 
    ```yaml
    ---
@@ -68,10 +116,10 @@ estructurados para Google se actualizan solos a partir de este archivo.
    nombre: 'Dior Sauvage Eau de Parfum'
    marca: 'Dior'
    categoria: disenador # disenador | arabes | sets-corporativos
-   precio: 135 # frasco sellado en USD; use null para «Precio a consultar»
-   precioAnterior: 150 # opcional: muestra la insignia «Oferta» (debe ser mayor que precio)
-   contenidoMl: 100 # opcional: tamaño del frasco
-   decants: # opcional: precios por tamaño de decant
+   precio: 135 # USD; null = «Precio a consultar»
+   precioAnterior: 150 # opcional: insignia «Oferta» (debe ser mayor que precio)
+   contenidoMl: 100 # opcional
+   decants: # opcional
      - { ml: 3, precio: 6 }
      - { ml: 5, precio: 10 }
      - { ml: 10, precio: 16 }
@@ -79,102 +127,56 @@ estructurados para Google se actualizan solos a partir de este archivo.
    imagenes: # mínimo 1; la primera es la portada
      - src: ../../assets/productos/dior-sauvage.jpg
        alt: 'Frasco de Dior Sauvage Eau de Parfum de 100 ml sobre fondo negro'
-   disponible: true # false muestra «Agotado»
-   destacado: false # true lo muestra en el inicio (máximo 4)
-   fechaPublicacion: 2026-10-15 # durante 30 días muestra la insignia «Nuevo»
-   caracteristicas: # opcional: «Etiqueta: valor»
+   disponible: true # false = «Agotado»
+   destacado: false # true = aparece en el inicio (máximo 4)
+   fechaPublicacion: 2026-10-15 # durante 30 días muestra «Nuevo»
+   caracteristicas: # opcional, «Etiqueta: valor»
      - 'Concentración: Eau de Parfum'
-     - 'Familia olfativa: aromática fougère'
-   etiquetas: [masculino, fresco] # opcional: mejoran la búsqueda
+   etiquetas: [masculino, fresco] # opcional, mejoran la búsqueda
    sku: 'LS-DIOR-SAUVAGE' # opcional
    ---
    ```
 
-5. **Escriba la descripción larga** debajo del segundo `---` (en Markdown; puede usar **negritas**).
-6. Ejecute `npm run build`. **Si falta un dato o tiene un formato incorrecto, el build falla y le
-   indica el archivo y el campo exactos** (por ejemplo: `El "slug" solo admite minúsculas…`). También
-   falla si un `id` o un `slug` se repite.
+4. Escriba la descripción larga debajo del segundo `---`.
+5. Ejecute `npm run build`. **Si un dato no cumple el esquema, el build falla e indica el archivo y el campo.**
 
-El producto aparecerá automáticamente en el catálogo, en su categoría, en el selector del formulario
-de contacto, en el sitemap y con sus datos estructurados de Google.
-
-**Para eliminar un producto**, borre su archivo `.md` (y sus imágenes, si ya no se usan).
-
-> La insignia «Nuevo» se calcula al publicar el sitio. Si un producto debe dejar de mostrarse como
-> nuevo, basta con volver a publicar (Netlify y Vercel lo hacen con cada cambio).
+El producto aparece automáticamente en el catálogo, el sitemap, el selector del formulario y el
+índice que usa el servidor para validar las solicitudes.
 
 ---
 
-## 4. Configurar el envío del formulario (Netlify Forms)
+## 6. Publicar en Netlify
 
-El formulario ya está preparado para **Netlify Forms**: no necesita cuentas adicionales ni claves.
+1. Suba el repositorio a GitHub.
+2. En [app.netlify.com](https://app.netlify.com), elija **Add new site → Import an existing project**.
+   `netlify.toml` configura todo: `npm ci`, build, revisión de secretos, carpeta `dist`, Node 22, la función y los headers de seguridad.
+3. Cargue las variables de entorno (sección 3) **antes** del primer despliegue; sin `PUBLIC_TURNSTILE_SITE_KEY`, el build falla a propósito.
+4. Configure su dominio en **Domain management**. Netlify emite el certificado HTTPS y redirige HTTP con 301.
+5. Complete la lista de verificación de [`SECURITY.md`](SECURITY.md).
 
-1. Publique el sitio en Netlify (siguiente sección). Durante la publicación, Netlify detecta el formulario
-   `contacto` automáticamente.
-2. En el panel de Netlify, abra **Site configuration → Forms** y confirme que el formulario
-   `contacto` aparece en la lista. Si la detección está desactivada, actívela con **Enable form detection**
-   y vuelva a publicar.
-3. En **Forms → Form notifications → Add notification → Email notification**, escriba el correo que
-   recibirá las solicitudes (por ejemplo, `lescetsv@gmail.com`).
-4. Haga una prueba real desde `/contacto/`: al enviar, debe llegar a `/gracias/` y el mensaje debe
-   aparecer en **Forms → contacto**.
+Cada _push_ también ejecuta el workflow de GitHub Actions: auditoría de dependencias, gitleaks,
+lint, pruebas y build.
 
-**Cómo funciona:**
-
-- Con JavaScript, el formulario se envía en segundo plano. El botón se desactiva y muestra «Enviando…»;
-  si el envío falla, aparece un aviso con el teléfono y el correo como alternativa. Al enviarse con éxito,
-  redirige a `/gracias/`.
-- Sin JavaScript, el navegador envía el formulario de forma nativa y Netlify redirige a `/gracias/`.
-- **Anti-spam:** un campo oculto (honeypot, `sitio-web`) descarta los envíos de bots. Netlify además
-  filtra el spam con Akismet. Si necesita más protección, puede activar reCAPTCHA en el panel de Netlify.
-- El producto de interés llega con su nombre e id (por ejemplo, `Lattafa Yara (LS-011)`). Los enlaces
-  `/contacto/?producto=<slug>` precargan el producto en el selector.
-
-> **¿Publicará en Vercel u otro hosting?** Netlify Forms solo funciona en Netlify. En ese caso, cree
-> un formulario gratuito en [Formspree](https://formspree.io) y cambie en
-> `src/scripts/contact-form.ts` la URL del `fetch('/', …)` por la de Formspree
-> (`https://formspree.io/f/<su-id>`), con la cabecera `Accept: application/json`. En
-> `ContactForm.astro`, cambie también el `action` del formulario por esa misma URL.
+> **¿Vercel?** El sitio está preparado para Netlify. Para usar Vercel habría que mover la función a
+> `api/contacto.ts` (formato de Vercel) y reemplazar Netlify Blobs por un almacén externo para el
+> límite de envíos (por ejemplo, Upstash Redis). Además, los headers de `netlify.toml` tendrían que
+> pasar a `vercel.json`.
 
 ---
 
-## 5. Publicar el sitio
+## 7. Qué debe reemplazar o configurar
 
-### Netlify (recomendado, por el formulario)
-
-1. Suba el proyecto a un repositorio de GitHub, GitLab o Bitbucket.
-2. En [app.netlify.com](https://app.netlify.com), elija **Add new site → Import an existing project** y
-   seleccione el repositorio.
-3. Netlify lee `netlify.toml` y configura todo solo: comando `npm run build`, carpeta `dist` y Node 22.
-4. Cuando termine la publicación, configure su dominio en **Domain management** y actualice
-   `SITE.url` (en `src/data/site.ts`) y `site` (en `astro.config.mjs`) con ese dominio.
-5. Configure las notificaciones del formulario (sección 4).
-
-Cada cambio que suba al repositorio se publica automáticamente.
-
-### Vercel
-
-1. En [vercel.com/new](https://vercel.com/new), importe el repositorio. Vercel detecta Astro y lee `vercel.json`.
-2. Publique y configure el dominio en **Settings → Domains**.
-3. Configure Formspree para el formulario (nota de la sección 4).
-
----
-
-## 6. Lo que debe reemplazar o revisar antes de publicar
-
-- **Dirección:** `CONTACT.address.street` en `src/data/site.ts` está vacía; el sitio muestra solo «San Salvador, El Salvador» hasta que la complete.
-- **Correo:** se usa `lescetsv@gmail.com` tal como se indicó. Verifique que la ortografía sea la correcta.
-- **Redes sociales:** Instagram `@lescent.sv` aparece en las fichas. Confirme las direcciones de Facebook y TikTok o elimínelas de `SOCIAL_LINKS`.
-- **Dominio:** `https://lescent.com.sv` en `src/data/site.ts` y `astro.config.mjs`.
-- **Testimonios:** los de `src/data/home.ts` son textos de ejemplo. Reemplácelos por testimonios reales, con autorización de cada cliente.
-- **Productos:** precios y presentaciones transcritos de las fichas. Revise en especial:
-  - **Armaf Odyssey Aqua:** la ficha indica $145.00 por el frasco sellado.
-  - **Lattafa Vintage Radio:** el precio del sellado es «a consultar».
-  - **Valentino Uomo Born in Roma:** está marcado como agotado (`disponible: false`) para mostrar la insignia.
-  - Las notas olfativas y descripciones son de referencia.
-- **Sets corporativos:** el contenido, los precios y las imágenes de los dos sets (`set-discovery-*.md`) son una propuesta. Las imágenes dicen «Imagen de referencia»; reemplácelas por fotos reales.
-- **Fotos:** las imágenes de detalle (`*-frasco.jpg` y `*-precios.jpg`) son recortes de cada ficha. Puede sustituirlas por fotografías reales del producto.
-- **Preguntas frecuentes y beneficios** (`src/data/home.ts`): confirme que las políticas de entrega y personalización coinciden con su operación.
+- **Variables y llaves:** las de la sección 3, en Netlify.
+- **Dirección exacta:** `CONTACT.address.street` en `src/data/site.ts`.
+- **Redes sociales:** Instagram `@lescent.sv` aparece en sus fichas. Confirme Facebook y TikTok o elimínelos de `SOCIAL_LINKS`.
+- **Dominio:** `https://lescent.com.sv`, en `src/data/site.ts` y `astro.config.mjs`.
+- **Productos:**
+  - Los precios están transcritos de sus fichas. Revise Odyssey Aqua ($145.00 sellado) y Vintage Radio (a consultar).
+  - Born in Roma figura como agotado.
+  - Las notas olfativas son de referencia.
+- **Sets corporativos:** el contenido, los precios y las imágenes de referencia son una propuesta.
+- **Fotos:** los recortes `*-frasco.jpg` y `*-precios.jpg` salen de sus fichas; puede reemplazarlos por fotografías reales.
+- **Preguntas frecuentes y beneficios** (`src/data/home.ts`): confirme las políticas de entrega y personalización.
 
 ---
 
@@ -182,14 +184,14 @@ Cada cambio que suba al repositorio se publica automáticamente.
 
 ```
 src/
-├── assets/            imágenes originales (productos y textura de marca)
+├── assets/            imágenes (productos y textura de marca)
 ├── components/        layout, ui, home, catalogo, contacto
-├── content/productos/ un archivo .md por producto
-├── content.config.ts  esquema Zod de productos (el build falla si un producto no lo cumple)
+├── content/productos/ un .md por producto (esquema en content.config.ts)
 ├── data/              site.ts (datos del negocio), categorías, contenido del inicio
-├── layouts/           BaseLayout.astro (SEO, fuentes, header, footer)
-├── pages/             inicio, catálogo, detalle, contacto, gracias, 404, robots.txt
-├── scripts/           JavaScript mínimo: menú, filtros, galería, formulario, animaciones
-├── styles/global.css  tokens del sistema de diseño (colores, tipografía, espaciado)
-└── utils/             precios, enlaces de contacto, JSON-LD, productos
+├── lib/schemas/       contrato del formulario (Zod), compartido por cliente y servidor
+├── lib/server/        código exclusivo del servidor (nunca llega al navegador)
+├── layouts/ pages/ scripts/ styles/ utils/
+netlify/functions/     contacto.ts → /api/contacto/
+tests/                 pruebas de seguridad (Vitest)
+scripts/               check-dist-secrets.mjs
 ```

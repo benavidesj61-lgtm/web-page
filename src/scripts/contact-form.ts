@@ -19,6 +19,7 @@ interface TurnstileOptions {
   sitekey: string;
   action: string;
   theme: 'light';
+  size: 'flexible' | 'compact';
   language: string;
   'refresh-expired': 'auto';
   'response-field': boolean;
@@ -143,6 +144,8 @@ export function initContactForm(): void {
           sitekey,
           action: widget.dataset['action'] ?? CONTACT_FORM.turnstileAction,
           theme: 'light',
+          // The regular widget needs 300px; narrow phones get the compact (150px) version.
+          size: widget.clientWidth < 300 ? 'compact' : 'flexible',
           language: 'es',
           'refresh-expired': 'auto',
           // The token is read with getResponse() and sent as JSON; no hidden input is needed.

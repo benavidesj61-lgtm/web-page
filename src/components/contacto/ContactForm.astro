@@ -149,7 +149,7 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
       </p>
       <!-- Cloudflare Turnstile renders here; it checks for bots without puzzles in most cases. -->
       <div
-        class="mt-0.5 min-h-[65px]"
+        class="mt-0.5 min-h-[65px] max-w-full"
         aria-describedby="contacto-verificacion"
         data-turnstile
         data-sitekey={PUBLIC_TURNSTILE_SITE_KEY}
