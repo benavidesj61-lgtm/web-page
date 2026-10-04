@@ -69,10 +69,10 @@
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Font variables are injected by Astro's <Font> component at runtime. */
-@theme inline {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-playfair), Georgia, serif;
+/* Families come from the @fontsource-variable packages imported in BaseLayout. */
+@theme {
+  --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Playfair Display Variable', Georgia, serif;
 }
 
 @layer base {
@@ -141,18 +141,24 @@
     @apply font-sans text-xs font-medium tracking-eyebrow uppercase;
   }
 
-  /* Visible only when JS is running, so content never stays hidden if scripts fail. */
-  .js [data-reveal] {
-    opacity: 0;
-    transform: translateY(16px);
-    transition:
-      opacity 300ms var(--ease-out),
-      transform 300ms var(--ease-out);
-  }
+  /*
+   * Hidden only when scripting is on, so content never stays hidden without JS. A media query
+   * instead of a class set by an inline script keeps the CSP free of 'unsafe-inline'; browsers
+   * without `scripting` support simply skip the fade.
+   */
+  @media (scripting: enabled) {
+    [data-reveal] {
+      opacity: 0;
+      transform: translateY(16px);
+      transition:
+        opacity 300ms var(--ease-out),
+        transform 300ms var(--ease-out);
+    }
 
-  .js [data-reveal].is-visible {
-    opacity: 1;
-    transform: none;
+    [data-reveal].is-visible {
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .prose-lescent {
@@ -178,8 +184,8 @@
     scroll-behavior: auto !important;
   }
 
-  .js [data-reveal] {
-    opacity: 1;
-    transform: none;
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
   }
 }

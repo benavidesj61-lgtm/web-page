@@ -1,10 +1,13 @@
 ---
-import { Font } from 'astro:assets';
 import Footer from '@/components/layout/Footer.astro';
 import Header from '@/components/layout/Header.astro';
 import SEO, { type SEOProps } from '@/components/layout/SEO.astro';
 import SkipLink from '@/components/layout/SkipLink.astro';
 import { SITE } from '@/data/site';
+// Bundled into the external stylesheet (no inline @font-face), which keeps style-src strict.
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource-variable/playfair-display/wght.css';
+import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import '@/styles/global.css';
 
 type Props = SEOProps;
@@ -19,12 +22,7 @@ const seo = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#0a0a0a" />
     <meta name="format-detection" content="telephone=no" />
-    <!-- Runs before first paint so reveal-on-scroll never flashes visible content as hidden. -->
-    <script is:inline>
-      document.documentElement.classList.add('js');
-    </script>
-    <Font cssVariable="--font-inter" preload />
-    <Font cssVariable="--font-playfair" />
+    <link rel="preload" href={interFont} as="font" type="font/woff2" crossorigin />
 
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

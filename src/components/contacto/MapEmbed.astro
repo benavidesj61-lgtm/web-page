@@ -8,7 +8,7 @@ import { formatAddress, getMapEmbedUrl, getMapLinkUrl } from '@/utils/contact';
     src={getMapEmbedUrl()}
     title={`Mapa de ubicación: ${formatAddress()}`}
     loading="lazy"
-    referrerpolicy="no-referrer-when-downgrade"
+    referrerpolicy="strict-origin-when-cross-origin"
     class="aspect-4/3 w-full border border-noir-100 bg-noir-100 grayscale sm:aspect-video lg:aspect-21/9"
   ></iframe>
   <p class="mt-1 text-sm">

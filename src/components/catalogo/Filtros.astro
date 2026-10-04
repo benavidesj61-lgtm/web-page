@@ -1,6 +1,6 @@
 ---
 import { CATEGORY_LIST } from '@/data/categories';
-import { SORT_OPTIONS } from '@/scripts/catalog-filters';
+import { MAX_QUERY_LENGTH, SORT_OPTIONS } from '@/scripts/catalog-filters';
 import Icon from '../ui/Icon.astro';
 
 interface Props {
@@ -16,7 +16,7 @@ const chipClass =
 
 <!-- Hidden without JavaScript: filtering is client-side, and every product is listed anyway. -->
 <form
-  class="hidden border-b border-noir-100 pb-3 in-[.js]:block"
+  class="border-b border-noir-100 pb-3 [@media(scripting:none)]:hidden"
   role="search"
   aria-label="Filtrar catálogo"
   data-filters
@@ -36,6 +36,7 @@ const chipClass =
           type="search"
           name="q"
           autocomplete="off"
+          maxlength={MAX_QUERY_LENGTH}
           enterkeyhint="search"
           placeholder="Ej. Khamrah, Chanel, vainilla…"
           class:list={[controlClass, 'pl-5']}

@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig, fontProviders } from 'astro/config';
+import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -19,43 +19,15 @@ export default defineConfig({
       filter: (page) => !NOINDEX_PATHS.some((path) => new URL(page).pathname === path),
     }),
   ],
-  fonts: [
-    {
-      provider: fontProviders.local(),
-      name: 'Inter',
-      cssVariable: '--font-inter',
-      fallbacks: ['ui-sans-serif', 'system-ui', 'sans-serif'],
-      display: 'swap',
-      options: {
-        variants: [
-          {
-            src: ['@fontsource-variable/inter/files/inter-latin-wght-normal.woff2'],
-            weight: '100 900',
-            style: 'normal',
-          },
-        ],
-      },
-    },
-    {
-      provider: fontProviders.local(),
-      name: 'Playfair Display',
-      cssVariable: '--font-playfair',
-      fallbacks: ['Georgia', 'serif'],
-      display: 'swap',
-      options: {
-        variants: [
-          {
-            src: [
-              '@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2',
-            ],
-            weight: '400 900',
-            style: 'normal',
-          },
-        ],
-      },
-    },
-  ],
+  build: {
+    // External stylesheets only: inline <style> blocks would need 'unsafe-inline' in the CSP.
+    inlineStylesheets: 'never',
+  },
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      // Emit every client script as a file so script-src can stay 'self' (no inline scripts).
+      assetsInlineLimit: 0,
+    },
   },
 });

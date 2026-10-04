@@ -11,6 +11,8 @@ export const SORT_OPTIONS = [
 
 export type SortValue = (typeof SORT_OPTIONS)[number]['value'];
 const DEFAULT_SORT: SortValue = 'recientes';
+/** Matches the input's maxlength; longer values from a shared URL are cut, never interpreted. */
+export const MAX_QUERY_LENGTH = 100;
 
 interface FilterState {
   category: string;
@@ -36,7 +38,7 @@ function parseFilters(params: URLSearchParams, validCategories: readonly string[
   const sort = params.get('orden');
   return {
     category: validCategories.includes(category) ? category : '',
-    query: (params.get('q') ?? '').trim(),
+    query: (params.get('q') ?? '').trim().slice(0, MAX_QUERY_LENGTH),
     sort: isSortValue(sort) ? sort : DEFAULT_SORT,
   };
 }
