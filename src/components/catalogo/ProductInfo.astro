@@ -1,0 +1,128 @@
+---
+import { CATEGORIES } from '@/data/categories';
+import { getProductMailtoHref, PHONE_HREF } from '@/utils/contact';
+import { formatPrice, getDiscountPercent } from '@/utils/price';
+import { getProductBadges, type Product } from '@/utils/products';
+import Badge from '../ui/Badge.astro';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+import ProductPrice from './ProductPrice.astro';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+const { data } = product;
+const category = CATEGORIES[data.categoria];
+const badges = getProductBadges(product);
+const discount =
+  data.precio !== null && data.precioAnterior
+    ? getDiscountPercent(data.precio, data.precioAnterior)
+    : undefined;
+const caption = data.contenidoMl ? `Frasco sellado · ${data.contenidoMl} ml` : 'Precio del set';
+
+/** "Concentración: Parfum" → label + value, so features render as a definition list. */
+const features = (data.caracteristicas ?? []).map((feature) => {
+  const separator = feature.indexOf(':');
+  return separator === -1
+    ? { label: '', value: feature }
+    : { label: feature.slice(0, separator).trim(), value: feature.slice(separator + 1).trim() };
+});
+---
+
+<div>
+  {badges.length > 0 && (
+    <ul class="mb-2 flex flex-wrap gap-1" aria-label="Estado del producto">
+      {badges.map((badge) => (
+        <li>
+          <Badge variant={badge.variant}>{badge.label}</Badge>
+        </li>
+      ))}
+    </ul>
+  )}
+  <p class="eyebrow text-noir-500">{data.marca}</p>
+  <h1 class="mt-1 text-4xl">{data.nombre}</h1>
+  <p class="mt-1 text-sm text-noir-600">
+    Categoría:{' '}
+    <a
+      href={`/catalogo/?categoria=${category.slug}`}
+      class="font-medium text-noir-950 underline underline-offset-4 hover:decoration-2"
+    >
+      {category.name}
+    </a>
+  </p>
+
+  <div class="mt-3 flex flex-wrap items-end gap-2 border-y border-noir-100 py-2">
+    <ProductPrice
+      price={data.precio}
+      previousPrice={data.precioAnterior}
+      caption={caption}
+      size="lg"
+    />
+    {discount !== undefined && <Badge variant="sale">Ahorre {discount} %</Badge>}
+  </div>
+
+  {data.decants && data.decants.length > 0 && (
+    <div class="mt-2">
+      <h2 class="font-sans text-sm font-semibold text-noir-950">Decants disponibles</h2>
+      <ul class="mt-1 grid grid-cols-3 gap-1">
+        {data.decants.map((decant) => (
+          <li class="border border-noir-200 px-1 py-1.5 text-center">
+            <span class="block text-xs tracking-[0.12em] text-noir-500 uppercase">
+              {decant.ml} ml
+            </span>
+            <span class="block font-semibold text-noir-950">{formatPrice(decant.precio)}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <p
+    class:list={[
+      'mt-2 flex items-center gap-1 text-sm font-medium',
+      data.disponible ? 'text-success' : 'text-noir-700',
+    ]}
+  >
+    <Icon name={data.disponible ? 'check' : 'alert'} class="size-2" />
+    {data.disponible
+      ? 'Disponible: confirme existencias y entrega al solicitar información.'
+      : 'Frasco sellado agotado. Consulte por la próxima reposición o por decants.'}
+  </p>
+
+  <p class="mt-2 text-lg text-noir-700">{data.descripcion}</p>
+
+  <div class="mt-3 flex flex-col gap-1.5">
+    <Button href={`/contacto/?producto=${data.slug}`} size="lg" fullWidth>
+      Solicitar información
+      <Icon name="arrow-right" class="size-2" />
+    </Button>
+    <div class="grid gap-1.5 min-[400px]:grid-cols-2">
+      <Button href={PHONE_HREF} variant="outline">
+        <Icon name="phone" class="size-2" />
+        Llamar
+      </Button>
+      <Button href={getProductMailtoHref(data.nombre)} variant="outline">
+        <Icon name="mail" class="size-2" />
+        Enviar correo
+      </Button>
+    </div>
+  </div>
+
+  {features.length > 0 && (
+    <div class="mt-4">
+      <h2 class="text-2xl">Características</h2>
+      <dl class="mt-1 divide-y divide-noir-100 border-y border-noir-100">
+        {features.map((feature) => (
+          <div class="grid gap-x-2 py-1.5 sm:grid-cols-3">
+            {feature.label && <dt class="text-sm text-noir-500">{feature.label}</dt>}
+            <dd class:list={['text-noir-950', feature.label ? 'sm:col-span-2' : 'sm:col-span-3']}>
+              {feature.value}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  )}
+</div>

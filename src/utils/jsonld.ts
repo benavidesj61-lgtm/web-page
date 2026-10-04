@@ -4,7 +4,7 @@ import { absoluteUrl } from './url';
 
 export type JsonLd = Record<string, unknown>;
 
-const BUSINESS_ID = `${SITE.url}/#negocio`;
+export const BUSINESS_ID = `${SITE.url}/#negocio`;
 
 export function buildLocalBusinessSchema(): JsonLd {
   const { street, city, region, country } = CONTACT.address;
@@ -53,4 +53,52 @@ export function buildBreadcrumbSchema(items: readonly BreadcrumbItem[]): JsonLd 
   };
 }
 
-export { BUSINESS_ID };
+interface ProductSchemaInput {
+  name: string;
+  description: string;
+  url: string;
+  images: readonly string[];
+  brand: string;
+  category: string;
+  sku?: string | undefined;
+  price: number | null;
+  sizeMl?: number | undefined;
+  decants?: readonly { ml: number; precio: number }[] | undefined;
+  available: boolean;
+}
+
+/** One Offer per purchasable presentation (sealed bottle and each decant size). */
+export function buildProductSchema(input: ProductSchemaInput): JsonLd {
+  const url = absoluteUrl(input.url);
+  const availability = `https://schema.org/${input.available ? 'InStock' : 'OutOfStock'}`;
+  const offer = (name: string, price: number, available = input.available) => ({
+    '@type': 'Offer',
+    name,
+    price: price.toFixed(2),
+    priceCurrency: SITE.currency,
+    availability: available ? availability : 'https://schema.org/OutOfStock',
+    url,
+    seller: { '@id': BUSINESS_ID },
+  });
+
+  const offers = [
+    ...(input.price === null
+      ? []
+      : [offer(input.sizeMl ? `Sellado ${input.sizeMl} ml` : input.name, input.price)]),
+    // Decants come from opened bottles, so they stay available when the sealed bottle is sold out.
+    ...(input.decants ?? []).map((decant) => offer(`Decant ${decant.ml} ml`, decant.precio, true)),
+  ];
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: input.name,
+    description: input.description,
+    url,
+    image: input.images.map((image) => absoluteUrl(image)),
+    brand: { '@type': 'Brand', name: input.brand },
+    category: input.category,
+    ...(input.sku ? { sku: input.sku } : {}),
+    ...(offers.length > 0 ? { offers } : {}),
+  };
+}

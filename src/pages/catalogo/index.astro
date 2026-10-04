@@ -1,0 +1,53 @@
+---
+import EmptyState from '@/components/catalogo/EmptyState.astro';
+import Filtros from '@/components/catalogo/Filtros.astro';
+import ProductGrid from '@/components/catalogo/ProductGrid.astro';
+import type { BreadcrumbItem } from '@/components/layout/Breadcrumbs.astro';
+import Container from '@/components/layout/Container.astro';
+import PageHeader from '@/components/layout/PageHeader.astro';
+import Button from '@/components/ui/Button.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildBreadcrumbSchema } from '@/utils/jsonld';
+import { getProducts } from '@/utils/products';
+
+const products = await getProducts();
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Catálogo', href: '/catalogo/' },
+];
+---
+
+<BaseLayout
+  title="Catálogo de perfumes y decants originales"
+  description="Perfumes de diseñador y árabes originales, sellados o en decants de 3, 5 y 10 ml, y sets corporativos. Compare precios en USD y solicite su cotización."
+  jsonLd={buildBreadcrumbSchema(breadcrumbs)}
+>
+  <PageHeader
+    id="catalogo-titulo"
+    eyebrow="Catálogo"
+    title="Perfumes y decants originales"
+    description="Fragancias 100 % originales de las casas más reconocidas, selladas o en decants. Encuentre su favorita y solicite información sin compromiso."
+    breadcrumbs={breadcrumbs}
+  />
+
+  <Container class="py-4 lg:py-6">
+    <Filtros total={products.length} />
+
+    <h2 class="sr-only">Resultados</h2>
+    <div class="mt-3">
+      <ProductGrid products={products} label="Productos del catálogo" />
+      <EmptyState />
+      <div class="mt-5 flex flex-col items-center gap-1" hidden data-load-more-wrapper>
+        <p class="text-sm text-noir-600" data-load-progress></p>
+        <Button variant="outline" size="lg" data-load-more>
+          Cargar más productos
+        </Button>
+      </div>
+    </div>
+  </Container>
+</BaseLayout>
+
+<script>
+  import { initCatalogFilters } from '../../scripts/catalog-filters';
+  initCatalogFilters();
+</script>
