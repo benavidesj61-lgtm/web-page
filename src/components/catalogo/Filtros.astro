@@ -1,0 +1,115 @@
+---
+import { CATEGORY_LIST } from '@/data/categories';
+import { SORT_OPTIONS } from '@/scripts/catalog-filters';
+import Icon from '../ui/Icon.astro';
+
+interface Props {
+  total: number;
+}
+
+const { total } = Astro.props;
+const chipClass =
+  'inline-flex min-h-5 cursor-pointer items-center rounded-full border border-stone bg-white px-2 text-sm font-medium text-ink select-none hover:border-navy-900 peer-checked:border-navy-900 peer-checked:bg-navy-900 peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-navy-700 peer-active:scale-[0.98] transition-transform duration-150 ease-out';
+---
+
+<!-- Without JS the form is inert and every product stays visible; JS adds filtering and URL sync. -->
+<form
+  class="rounded-lg bg-white p-2 shadow-card sm:p-3"
+  role="search"
+  aria-label="Filtrar productos"
+  data-filters
+>
+  <div class="grid gap-2 md:grid-cols-[1fr_auto] md:items-end">
+    <div>
+      <label for="filtro-busqueda" class="block text-sm font-semibold text-navy-900">
+        Buscar por nombre
+      </label>
+      <div class="relative mt-1">
+        <Icon
+          name="search"
+          class="pointer-events-none absolute top-1/2 left-1.5 size-2.5 -translate-y-1/2 text-taupe"
+        />
+        <input
+          id="filtro-busqueda"
+          name="q"
+          type="search"
+          autocomplete="off"
+          enterkeyhint="search"
+          placeholder="Ej. Sauvage, decant, Chanel…"
+          class="min-h-6 w-full rounded-md border border-stone bg-ivory pr-2 pl-5 text-base text-ink placeholder:text-taupe hover:border-taupe focus:border-navy-900"
+          data-filter-search
+        />
+      </div>
+    </div>
+    <div>
+      <label for="filtro-orden" class="block text-sm font-semibold text-navy-900">
+        Ordenar por
+      </label>
+      <div class="relative mt-1">
+        <select
+          id="filtro-orden"
+          name="orden"
+          class="min-h-6 w-full cursor-pointer appearance-none rounded-md border border-stone bg-ivory pr-5 pl-2 text-base text-ink hover:border-taupe focus:border-navy-900 md:w-auto"
+          data-filter-sort
+        >
+          {SORT_OPTIONS.map((option) => (
+            <option value={option.value}>{option.label}</option>
+          ))}
+        </select>
+        <Icon
+          name="chevron-down"
+          class="pointer-events-none absolute top-1/2 right-1.5 size-2 -translate-y-1/2 text-taupe"
+        />
+      </div>
+    </div>
+  </div>
+
+  <fieldset class="mt-2">
+    <legend class="text-sm font-semibold text-navy-900">Categoría</legend>
+    <div class="mt-1 flex flex-wrap gap-1">
+      <label>
+        <input
+          type="radio"
+          name="categoria"
+          value=""
+          class="peer sr-only"
+          checked
+          data-filter-category
+        />
+        <span class={chipClass}>Todas</span>
+      </label>
+      {CATEGORY_LIST.map((category) => (
+        <label>
+          <input
+            type="radio"
+            name="categoria"
+            value={category.slug}
+            class="peer sr-only"
+            data-filter-category
+          />
+          <span class={chipClass}>{category.name}</span>
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <div class="mt-2 flex flex-wrap items-center justify-between gap-1 border-t border-stone pt-2">
+    <p
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+      class="text-sm text-taupe"
+      data-results-status
+    >
+      {total === 1 ? '1 producto disponible' : `${total} productos en el catálogo`}
+    </p>
+    <button
+      type="reset"
+      class="text-sm font-semibold text-navy-900 underline-offset-4 hover:underline active:text-navy-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
+      disabled
+      data-filters-reset
+    >
+      Limpiar filtros
+    </button>
+  </div>
+</form>

@@ -1,0 +1,32 @@
+---
+import { buildWhatsAppUrl } from '@/utils/whatsapp';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+---
+
+<div
+  class="rounded-lg border border-dashed border-stone bg-white px-3 py-6 text-center"
+  hidden
+  data-empty-state
+>
+  <span class="mx-auto inline-flex size-7 items-center justify-center rounded-full bg-sand text-navy-900">
+    <Icon name="search" class="size-3" />
+  </span>
+  <h2 class="mt-2 text-2xl">No encontramos productos con esos filtros</h2>
+  <p class="mx-auto mt-1 max-w-md text-taupe">
+    Pruebe con otro nombre o categoría. Si busca una fragancia específica, la conseguimos por usted.
+  </p>
+  <div class="mt-3 flex flex-col justify-center gap-1 sm:flex-row">
+    <Button variant="outline" data-empty-reset>
+      Limpiar filtros
+    </Button>
+    <Button
+      href={buildWhatsAppUrl('Hola, LE SCENT. Busco una fragancia que no encontré en el catálogo.')}
+      external
+      variant="accent"
+    >
+      <Icon name="whatsapp" class="size-2.5" />
+      Pedir una fragancia
+    </Button>
+  </div>
+</div>

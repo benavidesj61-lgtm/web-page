@@ -1,0 +1,147 @@
+---
+import type { ImageMetadata } from 'astro';
+import { Picture } from 'astro:assets';
+import Icon from '../ui/Icon.astro';
+
+interface GalleryImage {
+  src: ImageMetadata;
+  alt: string;
+}
+
+interface Props {
+  images: readonly GalleryImage[];
+  productName: string;
+}
+
+const { images, productName } = Astro.props;
+const hasMany = images.length > 1;
+const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(100vw - 32px)';
+---
+
+<div data-gallery>
+  <!-- Every image is pre-rendered; switching only toggles `hidden`, so lazy images load on demand. -->
+  <div class="relative overflow-hidden rounded-lg bg-sand">
+    {images.map((image, index) => (
+      <button
+        type="button"
+        class="group block w-full cursor-zoom-in"
+        hidden={index !== 0}
+        aria-label={`Ampliar imagen ${index + 1} de ${images.length}: ${image.alt}`}
+        data-gallery-main={index}
+      >
+        <Picture
+          src={image.src}
+          alt={image.alt}
+          formats={['avif', 'webp']}
+          widths={[400, 600, 800, 1000, 1200]}
+          sizes={MAIN_SIZES}
+          width={1000}
+          height={1250}
+          fit="cover"
+          loading={index === 0 ? 'eager' : 'lazy'}
+          fetchpriority={index === 0 ? 'high' : 'auto'}
+          decoding={index === 0 ? 'sync' : 'async'}
+          class="aspect-4/5 h-auto w-full object-cover"
+        />
+        <span class="absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-sm font-semibold text-navy-900 shadow-card transition-transform duration-200 ease-out group-hover:scale-[1.03]">
+          <Icon name="zoom-in" class="size-2" />
+          Ampliar
+        </span>
+      </button>
+    ))}
+  </div>
+
+  {hasMany && (
+    <ul class="mt-2 grid grid-cols-4 gap-1 sm:gap-2" aria-label={`Imágenes de ${productName}`}>
+      {images.map((image, index) => (
+        <li>
+          <button
+            type="button"
+            class="block w-full overflow-hidden rounded-md ring-2 ring-transparent ring-offset-2 ring-offset-ivory hover:ring-stone aria-pressed:ring-navy-900"
+            aria-pressed={index === 0 ? 'true' : 'false'}
+            aria-label={`Ver imagen ${index + 1} de ${images.length}`}
+            data-gallery-thumb={index}
+          >
+            <Picture
+              src={image.src}
+              alt=""
+              formats={['avif', 'webp']}
+              widths={[120, 200, 300]}
+              sizes="(min-width: 1024px) 140px, 22vw"
+              width={300}
+              height={375}
+              fit="cover"
+              loading="lazy"
+              decoding="async"
+              class="aspect-4/5 h-auto w-full object-cover"
+            />
+          </button>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <dialog
+    class="m-auto max-h-dvh w-full max-w-5xl scale-95 bg-transparent p-2 opacity-0 transition-[opacity,transform,display,overlay] transition-discrete duration-200 ease-out backdrop:bg-navy-950/90 open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0 sm:p-4"
+    aria-label={`Galería ampliada de ${productName}`}
+    data-lightbox
+  >
+    <div class="on-dark relative flex flex-col items-center">
+      <div class="flex w-full items-center justify-between pb-2 text-white">
+        <p class="text-sm" aria-live="polite" data-lightbox-counter>
+          1 de {images.length}
+        </p>
+        <button
+          type="button"
+          class="inline-flex size-6 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 active:bg-white/30"
+          aria-label="Cerrar galería"
+          data-lightbox-close
+        >
+          <Icon name="close" class="size-3" />
+        </button>
+      </div>
+      <div class="relative w-full">
+        {images.map((image, index) => (
+          <figure hidden={index !== 0} data-lightbox-slide={index}>
+            <Picture
+              src={image.src}
+              alt={image.alt}
+              formats={['avif', 'webp']}
+              widths={[600, 900, 1200, 1600]}
+              sizes="(min-width: 1024px) 960px, 100vw"
+              loading="lazy"
+              decoding="async"
+              class="mx-auto h-auto max-h-[80dvh] w-auto rounded-md object-contain"
+            />
+            <figcaption class="mt-1 text-center text-sm text-mist">{image.alt}</figcaption>
+          </figure>
+        ))}
+        {hasMany && (
+          <>
+            <button
+              type="button"
+              class="absolute top-1/2 left-0 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-navy-900 shadow-card hover:bg-ivory active:scale-95 sm:-left-1"
+              aria-label="Imagen anterior"
+              data-lightbox-prev
+            >
+              <Icon name="chevron-left" class="size-3" />
+            </button>
+            <button
+              type="button"
+              class="absolute top-1/2 right-0 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-navy-900 shadow-card hover:bg-ivory active:scale-95 sm:-right-1"
+              aria-label="Imagen siguiente"
+              data-lightbox-next
+            >
+              <Icon name="chevron-right" class="size-3" />
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  </dialog>
+</div>
+
+<script>
+  import { initGallery } from '../../scripts/gallery';
+  initGallery();
+</script>

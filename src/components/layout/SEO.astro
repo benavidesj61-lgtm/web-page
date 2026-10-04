@@ -10,8 +10,8 @@ export interface SeoProps {
   title: string;
   description: string;
   /** Local image (optimized to a 1200px JPG) or a path inside /public. */
-  image?: ImageMetadata | string;
-  imageAlt?: string;
+  image?: ImageMetadata | string | undefined;
+  imageAlt?: string | undefined;
   type?: 'website' | 'product';
   noindex?: boolean;
   jsonLd?: JsonLd | readonly JsonLd[];
