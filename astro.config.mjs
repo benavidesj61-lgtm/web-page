@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, envField } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
@@ -19,6 +19,13 @@ export default defineConfig({
       filter: (page) => !NOINDEX_PATHS.some((path) => new URL(page).pathname === path),
     }),
   ],
+  env: {
+    schema: {
+      // Public by design (Turnstile site keys are visible in every page). The build fails if it is
+      // missing. Secrets are NOT declared here: only the Netlify Function reads them at runtime.
+      PUBLIC_TURNSTILE_SITE_KEY: envField.string({ context: 'client', access: 'public' }),
+    },
+  },
   build: {
     // External stylesheets only: inline <style> blocks would need 'unsafe-inline' in the CSP.
     inlineStylesheets: 'never',

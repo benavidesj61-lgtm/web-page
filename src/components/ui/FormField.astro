@@ -3,7 +3,7 @@ import type { HTMLAttributes } from 'astro/types';
 
 export interface SelectOptionGroup {
   label: string;
-  options: readonly { value: string; label: string; slug?: string }[];
+  options: readonly { value: string; label: string }[];
 }
 
 interface Props {
@@ -81,9 +81,7 @@ const controlClass =
       {groups.map((group) => (
         <optgroup label={group.label}>
           {group.options.map((option) => (
-            <option value={option.value} data-slug={option.slug}>
-              {option.label}
-            </option>
+            <option value={option.value}>{option.label}</option>
           ))}
         </optgroup>
       ))}

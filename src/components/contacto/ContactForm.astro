@@ -1,6 +1,8 @@
 ---
+import { PUBLIC_TURNSTILE_SITE_KEY } from 'astro:env/client';
 import { CATEGORY_LIST } from '@/data/categories';
-import { CONTACT, CONTACT_FORM } from '@/data/site';
+import { CONTACT } from '@/data/site';
+import { CONTACT_FORM, CONTACT_LIMITS } from '@/lib/schemas/contact';
 import { buildMailtoHref, PHONE_HREF } from '@/utils/contact';
 import { getProducts } from '@/utils/products';
 import Button from '../ui/Button.astro';
@@ -13,12 +15,8 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
   options: products
     .filter((product) => product.data.categoria === category.slug)
     .sort((a, b) => a.data.nombre.localeCompare(b.data.nombre, 'es'))
-    // The readable name (not the slug) is what arrives in the Netlify notification email.
-    .map((product) => ({
-      value: `${product.data.nombre} (${product.data.id})`,
-      label: product.data.nombre,
-      slug: product.data.slug,
-    })),
+    // Only the slug travels; the server looks up the real name in the catalog.
+    .map((product) => ({ value: product.data.slug, label: product.data.nombre })),
 })).filter((group) => group.options.length > 0);
 ---
 
@@ -44,8 +42,11 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
       <Icon name="alert" class="size-2" />
       No pudimos enviar su mensaje.
     </p>
+    <p class="mt-0.5 text-sm text-noir-800" data-form-error-message>
+      Revise su conexión e inténtelo de nuevo.
+    </p>
     <p class="mt-0.5 text-sm text-noir-800">
-      Revise su conexión e inténtelo de nuevo, o comuníquese directamente al{' '}
+      También puede comunicarse directamente al{' '}
       <a href={PHONE_HREF} class="font-semibold underline underline-offset-4">
         {CONTACT.phone.display}
       </a>{' '}
@@ -57,27 +58,39 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
     </p>
   </div>
 
-  <!--
-    Netlify Forms detects this form in the built HTML (data-netlify). Without JavaScript the
-    browser posts it natively and Netlify redirects to `action`; with JavaScript it is sent
-    with fetch so the visitor gets loading and error states.
-  -->
-  <form
-    name={CONTACT_FORM.name}
-    method="POST"
-    action={CONTACT_FORM.successPath}
-    data-netlify="true"
-    netlify-honeypot={CONTACT_FORM.honeypotField}
-    class="mt-3 grid gap-2 sm:grid-cols-2"
-    data-contact-form
-  >
-    <input type="hidden" name="form-name" value={CONTACT_FORM.name} />
+  <noscript>
+    <p class="mt-3 border border-noir-300 bg-noir-50 p-2 text-noir-800">
+      Para enviar el formulario necesitamos JavaScript (lo usamos para la verificación antispam).
+      Puede escribirnos a{' '}
+      <a href={buildMailtoHref()} class="font-semibold underline">
+        {CONTACT.email}
+      </a>
+      o llamarnos al{' '}
+      <a href={PHONE_HREF} class="font-semibold underline">
+        {CONTACT.phone.display}
+      </a>
+      .
+    </p>
+  </noscript>
 
+  <!-- Sent with fetch to the Netlify Function; it has no action, so it never posts without JS. -->
+  <form
+    class="mt-3 grid gap-2 sm:grid-cols-2 [@media(scripting:none)]:hidden"
+    novalidate
+    data-contact-form
+    data-endpoint={CONTACT_FORM.endpoint}
+  >
     <!-- Honeypot: invisible to people, tempting for bots. Filled in = spam. -->
     <div class="absolute -left-[9999px] size-px overflow-hidden" aria-hidden="true">
       <label>
         No llene este campo si es humano
-        <input type="text" name={CONTACT_FORM.honeypotField} tabindex="-1" autocomplete="off" />
+        <input
+          type="text"
+          name={CONTACT_FORM.honeypotField}
+          tabindex="-1"
+          autocomplete="off"
+          maxlength="200"
+        />
       </label>
     </div>
 
@@ -87,7 +100,7 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
       label="Nombre completo"
       required
       autocomplete="name"
-      maxlength={100}
+      maxlength={CONTACT_LIMITS.nombre.max}
     />
     <FormField
       id="contacto-correo"
@@ -98,7 +111,7 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
       autocomplete="email"
       inputmode="email"
       placeholder="nombre@empresa.com"
-      maxlength={120}
+      maxlength={CONTACT_LIMITS.correo.max}
     />
     <FormField
       id="contacto-telefono"
@@ -109,7 +122,7 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
       autocomplete="tel"
       inputmode="tel"
       placeholder="7529-2926"
-      maxlength={20}
+      maxlength={CONTACT_LIMITS.telefono.max}
     />
     <FormField
       id="contacto-producto"
@@ -125,10 +138,25 @@ const productGroups: SelectOptionGroup[] = CATEGORY_LIST.map((category) => ({
       label="Mensaje"
       type="textarea"
       required
-      maxlength={2000}
+      maxlength={CONTACT_LIMITS.mensaje.max}
       hint="Cuéntenos qué necesita: cantidad aproximada, presentación (sellado o decant) y fecha de entrega."
       class="sm:col-span-2"
     />
+
+    <div class="sm:col-span-2" data-field="turnstile">
+      <p class="text-sm font-medium text-noir-950" id="contacto-verificacion">
+        Verificación de seguridad
+      </p>
+      <!-- Cloudflare Turnstile renders here; it checks for bots without puzzles in most cases. -->
+      <div
+        class="mt-0.5 min-h-[65px]"
+        aria-describedby="contacto-verificacion"
+        data-turnstile
+        data-sitekey={PUBLIC_TURNSTILE_SITE_KEY}
+        data-action={CONTACT_FORM.turnstileAction}
+      ></div>
+      <p class="mt-0.5 flex gap-0.5 text-sm font-medium text-danger empty:hidden" data-error></p>
+    </div>
 
     <div class="flex flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center sm:justify-between">
       <p class="text-sm text-noir-500">Usamos sus datos solo para responder a su solicitud.</p>

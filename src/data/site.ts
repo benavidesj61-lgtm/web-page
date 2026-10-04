@@ -98,13 +98,3 @@ export const NAV_ITEMS: readonly NavItem[] = [
   { label: 'Preguntas', href: '/#preguntas-frecuentes' },
   { label: 'Contacto', href: '/contacto/' },
 ];
-
-/**
- * Contact form delivery through Netlify Forms. `name` must match the hidden `form-name`
- * field and the form's `name` attribute; Netlify detects the form at deploy time.
- */
-export const CONTACT_FORM = {
-  name: 'contacto',
-  honeypotField: 'sitio-web',
-  successPath: '/gracias/',
-} as const;
