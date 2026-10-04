@@ -1,0 +1,67 @@
+---
+import { CONTACT, SITE } from '@/config/site';
+import Button from '../ui/Button.astro';
+import Icon from '../ui/Icon.astro';
+
+const query = encodeURIComponent(CONTACT.mapQuery);
+const embedUrl = `https://www.google.com/maps?q=${query}&output=embed`;
+const externalUrl = `https://www.google.com/maps/search/?api=1&query=${query}`;
+---
+
+<!--
+  Click-to-load facade: Google Maps (≈1 MB of JS and third-party cookies) only loads when the
+  visitor asks for it, keeping the page fast and private. The iframe itself is also lazy.
+-->
+<div
+  class="relative aspect-4/3 overflow-hidden rounded-lg bg-navy-900 sm:aspect-video"
+  data-map
+  data-map-src={embedUrl}
+>
+  <div
+    class="on-dark flex h-full flex-col items-center justify-center gap-2 p-3 text-center"
+    data-map-placeholder
+  >
+    <span class="inline-flex size-7 items-center justify-center rounded-full bg-gold-500 text-navy-950">
+      <Icon name="map-pin" class="size-3" />
+    </span>
+    <p class="max-w-sm text-white">
+      <span class="block font-semibold">{CONTACT.address.street}</span>
+      <span class="text-mist">
+        {CONTACT.address.city}, {CONTACT.address.countryName}
+      </span>
+    </p>
+    <div class="flex flex-col gap-1 sm:flex-row">
+      <Button variant="accent" size="sm" data-map-load>
+        Cargar mapa interactivo
+      </Button>
+      <Button href={externalUrl} external variant="outline-light" size="sm">
+        Abrir en Google Maps
+      </Button>
+    </div>
+  </div>
+  <template data-map-template>
+    <iframe
+      title={`Mapa de ubicación de ${SITE.name} en ${CONTACT.address.city}`}
+      class="absolute inset-0 size-full border-0"
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      allowfullscreen
+    ></iframe>
+  </template>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-map]').forEach((map) => {
+    const button = map.querySelector<HTMLButtonElement>('[data-map-load]');
+    const template = map.querySelector<HTMLTemplateElement>('[data-map-template]');
+    const placeholder = map.querySelector<HTMLElement>('[data-map-placeholder]');
+    button?.addEventListener('click', () => {
+      const iframe = template?.content.querySelector('iframe')?.cloneNode(true);
+      if (!(iframe instanceof HTMLIFrameElement) || !map.dataset['mapSrc']) return;
+      iframe.src = map.dataset['mapSrc'];
+      map.append(iframe);
+      placeholder?.setAttribute('hidden', '');
+      iframe.focus();
+    });
+  });
+</script>

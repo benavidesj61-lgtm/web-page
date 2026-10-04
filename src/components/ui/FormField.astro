@@ -1,0 +1,89 @@
+---
+interface Props {
+  id: string;
+  name: string;
+  label: string;
+  type?: 'text' | 'email' | 'tel' | 'textarea' | 'select';
+  hint?: string;
+  required?: boolean;
+  autocomplete?: string;
+  inputmode?: 'text' | 'email' | 'tel';
+  placeholder?: string;
+  options?: readonly string[];
+  class?: string;
+}
+
+const {
+  id,
+  name,
+  label,
+  type = 'text',
+  hint,
+  required = false,
+  autocomplete,
+  inputmode,
+  placeholder,
+  options = [],
+  class: className,
+} = Astro.props;
+
+const hintId = hint ? `${id}-ayuda` : undefined;
+const errorId = `${id}-error`;
+const describedBy = [hintId, errorId].filter(Boolean).join(' ');
+const controlClass =
+  'mt-1 w-full rounded-md border border-stone bg-white px-2 text-base text-ink placeholder:text-taupe hover:border-taupe focus:border-navy-900 aria-invalid:border-danger aria-invalid:bg-danger/5';
+---
+
+<div class={className} data-field={name}>
+  <label for={id} class="block text-sm font-semibold text-navy-900">
+    {label}
+    {required ? (
+      <span class="text-danger" aria-hidden="true">
+        {' '}
+        *
+      </span>
+    ) : (
+      <span class="font-normal text-taupe"> (opcional)</span>
+    )}
+  </label>
+  {hint && (
+    <p id={hintId} class="mt-0.5 text-sm text-taupe">
+      {hint}
+    </p>
+  )}
+  {type === 'textarea' ? (
+    <textarea
+      id={id}
+      name={name}
+      rows="5"
+      required={required}
+      placeholder={placeholder}
+      aria-describedby={describedBy}
+      class:list={[controlClass, 'min-h-16 py-1.5']}
+    />
+  ) : type === 'select' ? (
+    <select
+      id={id}
+      name={name}
+      aria-describedby={describedBy}
+      class:list={[controlClass, 'min-h-6 cursor-pointer']}
+    >
+      {options.map((option) => (
+        <option value={option}>{option}</option>
+      ))}
+    </select>
+  ) : (
+    <input
+      id={id}
+      name={name}
+      type={type}
+      required={required}
+      autocomplete={autocomplete}
+      inputmode={inputmode}
+      placeholder={placeholder}
+      aria-describedby={describedBy}
+      class:list={[controlClass, 'min-h-6']}
+    />
+  )}
+  <p id={errorId} class="mt-0.5 text-sm font-medium text-danger" data-error></p>
+</div>

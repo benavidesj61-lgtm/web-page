@@ -1,0 +1,44 @@
+---
+import Container from '@/components/layout/Container.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { buildWhatsAppUrl } from '@/utils/whatsapp';
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La página que busca no existe o cambió de dirección. Explore nuestro catálogo de perfumes y decants originales."
+  noindex
+>
+  <Container size="narrow" class="py-10 text-center lg:py-12">
+    <p class="font-display text-5xl text-gold-700" aria-hidden="true">
+      404
+    </p>
+    <h1 class="mt-2 text-4xl">No encontramos esta página</h1>
+    <p class="mx-auto mt-2 max-w-xl text-lg text-taupe">
+      Es posible que el enlace haya cambiado o que el producto ya no esté en el catálogo. Le
+      ayudamos a encontrar lo que busca.
+    </p>
+    <div class="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
+      <Button href="/catalogo/" size="lg">
+        Ver catálogo
+      </Button>
+      <Button href="/" variant="outline" size="lg">
+        Ir al inicio
+      </Button>
+    </div>
+    <p class="mt-4 text-taupe">
+      ¿Busca un perfume específico?
+      <a
+        href={buildWhatsAppUrl('Hola, LE SCENT. Busco un perfume que no encontré en el sitio web.')}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="inline-flex items-center gap-0.5 font-semibold text-navy-900 underline underline-offset-4 hover:text-navy-700"
+      >
+        <Icon name="whatsapp" class="size-2" />
+        Pregúntenos por WhatsApp
+      </a>
+    </p>
+  </Container>
+</BaseLayout>
