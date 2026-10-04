@@ -1,5 +1,6 @@
-import type { IconName } from '@/components/ui/Icon.astro';
 import type { AccordionItem } from '@/components/ui/Accordion.astro';
+import type { IconName } from '@/components/ui/Icon.astro';
+import { CONTACT, SITE } from './site';
 
 export interface Benefit {
   icon: IconName;
@@ -9,87 +10,70 @@ export interface Benefit {
 
 export const BENEFITS: readonly Benefit[] = [
   {
-    icon: 'badge-check',
-    title: 'Autenticidad garantizada',
+    icon: 'shield',
+    title: 'Originalidad garantizada',
     description:
-      'Trabajamos solo con distribuidores autorizados. Cada frasco llega sellado de fábrica y con comprobante de compra.',
+      'Trabajamos solo con frascos 100 % originales y sellados. Cada decant se extrae de un frasco auténtico, con atomizadores nuevos.',
   },
   {
-    icon: 'sparkles',
-    title: 'Decants con trazabilidad',
+    icon: 'droplet',
+    title: 'Decants para probar sin riesgo',
     description:
-      'Extraemos cada decant del frasco original, con atomizadores de vidrio nuevos y etiqueta con lote y fecha.',
+      'Presentaciones de 3, 5 y 10 ml para conocer cómo evoluciona una fragancia en su piel antes de invertir en el frasco completo.',
   },
   {
-    icon: 'building',
-    title: 'Programa corporativo',
+    icon: 'briefcase',
+    title: 'Atención para empresas',
     description:
-      'Sets personalizados con su logotipo, comprobante de crédito fiscal y precios por volumen desde 10 unidades.',
+      'Cotizaciones por volumen para clientes, colaboradores y eventos, con un asesor que acompaña su pedido de principio a fin.',
+  },
+  {
+    icon: 'gift',
+    title: 'Regalos listos para entregar',
+    description:
+      'Sets en estuche negro con tarjeta personalizada: un detalle elegante que refleja la imagen de su empresa.',
   },
   {
     icon: 'truck',
-    title: 'Entrega en todo el país',
+    title: 'Entregas en El Salvador',
     description:
-      'Entregas en el Gran San Salvador en 24 horas hábiles y envíos con seguimiento a todo El Salvador.',
+      'Coordinamos la entrega de su pedido en el lugar que nos indique; el costo y el plazo se confirman en la cotización.',
+  },
+  {
+    icon: 'clock',
+    title: 'Respuesta ágil',
+    description: `Respondemos cada solicitud en un plazo máximo de ${SITE.responseTime}, de lunes a viernes de 8:00 a. m. a 5:00 p. m.`,
   },
 ];
 
-export interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-}
-
-export const TESTIMONIALS: readonly Testimonial[] = [
+export const FAQ_ITEMS: readonly AccordionItem[] = [
   {
-    quote:
-      'Encargamos 40 sets ejecutivos para nuestros clientes de fin de año. Llegaron a tiempo, con tarjetas personalizadas y una presentación impecable. Ya tenemos el pedido del próximo año.',
-    name: 'Andrea Martínez',
-    role: 'Gerente de Mercadeo, sector financiero',
-  },
-  {
-    quote:
-      'Probé Baccarat Rouge con un decant de 10 ml antes de comprar el frasco. La asesoría por WhatsApp fue clara y sin presión. Se nota que conocen lo que venden.',
-    name: 'Ricardo Hernández',
-    role: 'Director comercial',
-  },
-  {
-    quote:
-      'Lo que más valoro es la confianza: los frascos llegan sellados y con factura. Para regalos de la empresa necesitamos un proveedor serio y LE SCENT lo es.',
-    name: 'Gabriela Flores',
-    role: 'Jefa de Talento Humano, empresa de logística',
-  },
-];
-
-export const FAQS: readonly AccordionItem[] = [
-  {
-    question: '¿Los perfumes son 100 % originales?',
+    question: '¿Los perfumes son originales?',
     answer:
-      'Sí. Todos nuestros perfumes provienen de distribuidores autorizados y se entregan sellados de fábrica, con su caja original y comprobante de compra. Si tiene cualquier duda sobre un producto, con gusto le enviamos fotos del lote antes de su compra.',
+      'Sí. Todos nuestros frascos son 100 % originales y se entregan sellados. Los decants se extraen de esos mismos frascos originales, por lo que usted recibe exactamente la misma fragancia.',
   },
   {
-    question: '¿Qué es un decant y por qué conviene comprarlo?',
+    question: '¿Qué es un decant y por qué conviene?',
     answer:
-      'Un decant es una porción de 5 o 10 ml de un perfume original, trasvasada a un atomizador de vidrio nuevo. Es la forma más inteligente de probar una fragancia de lujo durante varias semanas antes de invertir en el frasco completo, o de llevar su perfume favorito de viaje.',
+      'Un decant es una porción de 3, 5 o 10 ml de un perfume original, envasada en un atomizador de vidrio. Es ideal para probar una fragancia durante varios días, llevarla de viaje o regalar varias opciones sin el costo de un frasco completo.',
   },
   {
-    question: '¿Atienden pedidos corporativos y emiten crédito fiscal?',
+    question: '¿Cómo solicito una cotización para mi empresa?',
     answer:
-      'Sí. Preparamos regalos para clientes y colaboradores desde 10 unidades, con tarjeta personalizada, logotipo de su empresa y entrega coordinada. Emitimos factura de consumidor final o comprobante de crédito fiscal según lo necesite.',
+      'Complete el formulario de contacto indicando el producto de interés, la cantidad aproximada y la fecha en que lo necesita. Un asesor le enviará una cotización detallada en un plazo máximo de un día hábil.',
   },
   {
-    question: '¿Cómo hago un pedido?',
+    question: '¿Pueden personalizar los regalos corporativos?',
     answer:
-      'Elija el producto en el catálogo y presione "Consultar por WhatsApp". El mensaje se envía con el nombre del producto y le confirmamos disponibilidad, precio final y tiempo de entrega en minutos durante nuestro horario de atención.',
+      'Sí. Nuestros sets incluyen tarjeta con mensaje personalizado y podemos armar combinaciones de fragancias según el perfil de quienes recibirán el regalo. Cuéntenos su idea en el formulario.',
   },
   {
-    question: '¿Qué formas de pago aceptan?',
+    question: '¿Hacen entregas a domicilio?',
     answer:
-      'Aceptamos transferencia bancaria, pago con tarjeta de crédito o débito mediante enlace de pago seguro y efectivo contra entrega en el Gran San Salvador. Para empresas también ofrecemos pago contra factura previa aprobación.',
+      'Coordinamos la entrega en la dirección que nos indique dentro de El Salvador. El costo y el tiempo de entrega dependen de la zona y del tamaño del pedido, y se confirman en su cotización.',
   },
   {
-    question: '¿Hacen envíos a todo El Salvador?',
-    answer:
-      'Sí. En el Gran San Salvador entregamos en 24 horas hábiles. Para el resto del país enviamos con empresa de mensajería y número de seguimiento, con un tiempo estimado de 1 a 3 días hábiles.',
+    question: '¿Cómo puedo comunicarme con ustedes?',
+    answer: `Puede escribirnos mediante el formulario de contacto, llamarnos al ${CONTACT.phone.display} o enviarnos un correo a ${CONTACT.email}. Atendemos de lunes a viernes de 8:00 a. m. a 5:00 p. m.`,
   },
 ];

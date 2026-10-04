@@ -15,12 +15,13 @@ interface Props {
 
 const { images, productName } = Astro.props;
 const hasMany = images.length > 1;
-const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(100vw - 32px)';
+const MAIN_SIZES = '(min-width: 1280px) 700px, (min-width: 1024px) 55vw, calc(100vw - 32px)';
 ---
 
 <div data-gallery>
   <!-- Every image is pre-rendered; switching only toggles `hidden`, so lazy images load on demand. -->
-  <div class="relative overflow-hidden rounded-lg bg-sand">
+  <!-- The artwork backgrounds are black, so `object-contain` on black letterboxes seamlessly. -->
+  <div class="relative bg-noir-950">
     {images.map((image, index) => (
       <button
         type="button"
@@ -33,17 +34,14 @@ const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(10
           src={image.src}
           alt={image.alt}
           formats={['avif', 'webp']}
-          widths={[400, 600, 800, 1000, 1200]}
+          widths={[400, 600, 800, 993]}
           sizes={MAIN_SIZES}
-          width={1000}
-          height={1250}
-          fit="cover"
           loading={index === 0 ? 'eager' : 'lazy'}
           fetchpriority={index === 0 ? 'high' : 'auto'}
           decoding={index === 0 ? 'sync' : 'async'}
-          class="aspect-4/5 h-auto w-full object-cover"
+          class="aspect-5/7 h-auto w-full object-contain"
         />
-        <span class="absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-full bg-white/95 px-2 py-1 text-sm font-semibold text-navy-900 shadow-card transition-transform duration-200 ease-out group-hover:scale-[1.03]">
+        <span class="absolute right-2 bottom-2 inline-flex items-center gap-1 rounded-full bg-white px-2 py-1 text-xs font-semibold tracking-[0.12em] text-noir-950 uppercase transition-transform duration-200 ease-out group-hover:scale-[1.03]">
           <Icon name="zoom-in" class="size-2" />
           Ampliar
         </span>
@@ -57,7 +55,7 @@ const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(10
         <li>
           <button
             type="button"
-            class="block w-full overflow-hidden rounded-md ring-2 ring-transparent ring-offset-2 ring-offset-ivory hover:ring-stone aria-pressed:ring-navy-900"
+            class="block w-full bg-noir-950 opacity-60 ring-1 ring-noir-200 ring-offset-2 hover:opacity-100 aria-pressed:opacity-100 aria-pressed:ring-2 aria-pressed:ring-noir-950"
             aria-pressed={index === 0 ? 'true' : 'false'}
             aria-label={`Ver imagen ${index + 1} de ${images.length}`}
             data-gallery-thumb={index}
@@ -67,22 +65,24 @@ const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(10
               alt=""
               formats={['avif', 'webp']}
               widths={[120, 200, 300]}
-              sizes="(min-width: 1024px) 140px, 22vw"
-              width={300}
-              height={375}
-              fit="cover"
+              sizes="(min-width: 1024px) 160px, 22vw"
               loading="lazy"
               decoding="async"
-              class="aspect-4/5 h-auto w-full object-cover"
+              class="aspect-square h-auto w-full object-contain"
             />
           </button>
         </li>
       ))}
     </ul>
   )}
+  {hasMany && (
+    <p class="mt-1 text-xs text-noir-500">
+      Use las flechas del teclado para recorrer las imágenes.
+    </p>
+  )}
 
   <dialog
-    class="m-auto max-h-dvh w-full max-w-5xl scale-95 bg-transparent p-2 opacity-0 transition-[opacity,transform,display,overlay] transition-discrete duration-200 ease-out backdrop:bg-navy-950/90 open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0 sm:p-4"
+    class="m-auto max-h-dvh w-full max-w-5xl scale-95 bg-transparent p-2 opacity-0 transition-[opacity,transform,display,overlay] transition-discrete duration-200 ease-out backdrop:bg-noir-950/95 open:scale-100 open:opacity-100 starting:open:scale-95 starting:open:opacity-0 sm:p-4"
     aria-label={`Galería ampliada de ${productName}`}
     data-lightbox
   >
@@ -93,7 +93,7 @@ const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(10
         </p>
         <button
           type="button"
-          class="inline-flex size-6 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 active:bg-white/30"
+          class="inline-flex size-6 items-center justify-center rounded-full border border-noir-600 text-white hover:bg-white hover:text-noir-950 active:scale-95"
           aria-label="Cerrar galería"
           data-lightbox-close
         >
@@ -107,20 +107,20 @@ const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(10
               src={image.src}
               alt={image.alt}
               formats={['avif', 'webp']}
-              widths={[600, 900, 1200, 1600]}
+              widths={[600, 993]}
               sizes="(min-width: 1024px) 960px, 100vw"
               loading="lazy"
               decoding="async"
-              class="mx-auto h-auto max-h-[80dvh] w-auto rounded-md object-contain"
+              class="mx-auto h-auto max-h-[78dvh] w-auto object-contain"
             />
-            <figcaption class="mt-1 text-center text-sm text-mist">{image.alt}</figcaption>
+            <figcaption class="mt-1 text-center text-sm text-noir-300">{image.alt}</figcaption>
           </figure>
         ))}
         {hasMany && (
           <>
             <button
               type="button"
-              class="absolute top-1/2 left-0 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-navy-900 shadow-card hover:bg-ivory active:scale-95 sm:-left-1"
+              class="absolute top-1/2 left-0 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-noir-950 hover:bg-noir-100 active:scale-95 sm:-left-1"
               aria-label="Imagen anterior"
               data-lightbox-prev
             >
@@ -128,7 +128,7 @@ const MAIN_SIZES = '(min-width: 1280px) 680px, (min-width: 1024px) 54vw, calc(10
             </button>
             <button
               type="button"
-              class="absolute top-1/2 right-0 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-navy-900 shadow-card hover:bg-ivory active:scale-95 sm:-right-1"
+              class="absolute top-1/2 right-0 inline-flex size-6 -translate-y-1/2 items-center justify-center rounded-full bg-white text-noir-950 hover:bg-noir-100 active:scale-95 sm:-right-1"
               aria-label="Imagen siguiente"
               data-lightbox-next
             >

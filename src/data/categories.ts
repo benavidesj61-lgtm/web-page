@@ -1,32 +1,36 @@
 /** Plain data (no image imports) so it can be used by content.config.ts. */
-export const CATEGORY_SLUGS = ['perfumes', 'decants', 'sets-corporativos'] as const;
+export const CATEGORY_SLUGS = ['disenador', 'arabes', 'sets-corporativos'] as const;
 
 export type CategorySlug = (typeof CATEGORY_SLUGS)[number];
 
 export interface Category {
   slug: CategorySlug;
   name: string;
+  shortName: string;
   description: string;
 }
 
 export const CATEGORIES: Record<CategorySlug, Category> = {
-  perfumes: {
-    slug: 'perfumes',
-    name: 'Perfumes originales',
+  disenador: {
+    slug: 'disenador',
+    name: 'Perfumes de diseñador',
+    shortName: 'Diseñador',
     description:
-      'Frascos completos y sellados de las casas más reconocidas, con garantía de autenticidad.',
+      'Las fragancias icónicas de Chanel, Jean Paul Gaultier, Versace, Valentino y Paco Rabanne, selladas o en decants.',
   },
-  decants: {
-    slug: 'decants',
-    name: 'Decants',
+  arabes: {
+    slug: 'arabes',
+    name: 'Perfumes árabes',
+    shortName: 'Árabes',
     description:
-      'Fragancias de lujo en 5 y 10 ml, extraídas del frasco original. Pruebe antes de invertir.',
+      'Lattafa, Armaf, Afnan y Rasasi: perfumería oriental intensa, de gran duración y excelente relación calidad-precio.',
   },
   'sets-corporativos': {
     slug: 'sets-corporativos',
-    name: 'Sets y regalos corporativos',
+    name: 'Sets corporativos',
+    shortName: 'Sets',
     description:
-      'Estuches listos para regalar a clientes y colaboradores, con presentación personalizada.',
+      'Estuches de decants listos para regalar a clientes y colaboradores, con tarjeta personalizada y cotización por volumen.',
   },
 };
 

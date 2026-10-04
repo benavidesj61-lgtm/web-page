@@ -1,6 +1,6 @@
 ---
 import { CATEGORY_LIST } from '@/data/categories';
-import { SORT_OPTIONS } from '@/scripts/catalog-filters';
+import { MAX_QUERY_LENGTH, SORT_OPTIONS } from '@/scripts/catalog-filters';
 import Icon from '../ui/Icon.astro';
 
 interface Props {
@@ -8,108 +8,101 @@ interface Props {
 }
 
 const { total } = Astro.props;
+const controlClass =
+  'min-h-6 w-full rounded-xs border border-noir-400 bg-white px-2 text-base text-noir-950 hover:border-noir-700 focus-visible:border-noir-950';
 const chipClass =
-  'inline-flex min-h-5 cursor-pointer items-center rounded-full border border-stone bg-white px-2 text-sm font-medium text-ink select-none hover:border-navy-900 peer-checked:border-navy-900 peer-checked:bg-navy-900 peer-checked:text-white peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-navy-700 peer-active:scale-[0.98] transition-transform duration-150 ease-out';
+  'inline-flex min-h-5 cursor-pointer items-center rounded-full border border-noir-300 px-2 text-sm text-noir-700 hover:border-noir-950 hover:text-noir-950 has-checked:border-noir-950 has-checked:bg-noir-950 has-checked:text-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-noir-950';
 ---
 
-<!-- Without JS the form is inert and every product stays visible; JS adds filtering and URL sync. -->
+<!-- Hidden without JavaScript: filtering is client-side, and every product is listed anyway. -->
 <form
-  class="rounded-lg bg-white p-2 shadow-card sm:p-3"
+  class="border-b border-noir-100 pb-3 [@media(scripting:none)]:hidden"
   role="search"
-  aria-label="Filtrar productos"
+  aria-label="Filtrar catálogo"
   data-filters
 >
-  <div class="grid gap-2 md:grid-cols-[1fr_auto] md:items-end">
-    <div>
-      <label for="filtro-busqueda" class="block text-sm font-semibold text-navy-900">
-        Buscar por nombre
+  <div class="grid gap-2 md:grid-cols-12 md:items-end">
+    <div class="md:col-span-6 lg:col-span-7">
+      <label for="catalogo-busqueda" class="text-sm font-medium text-noir-950">
+        Buscar por nombre o marca
       </label>
-      <div class="relative mt-1">
+      <div class="relative mt-0.5">
         <Icon
           name="search"
-          class="pointer-events-none absolute top-1/2 left-1.5 size-2.5 -translate-y-1/2 text-taupe"
+          class="pointer-events-none absolute top-1/2 left-1.5 size-2.5 -translate-y-1/2 text-noir-500"
         />
         <input
-          id="filtro-busqueda"
-          name="q"
+          id="catalogo-busqueda"
           type="search"
+          name="q"
           autocomplete="off"
+          maxlength={MAX_QUERY_LENGTH}
           enterkeyhint="search"
-          placeholder="Ej. Sauvage, decant, Chanel…"
-          class="min-h-6 w-full rounded-md border border-stone bg-ivory pr-2 pl-5 text-base text-ink placeholder:text-taupe hover:border-taupe focus:border-navy-900"
+          placeholder="Ej. Khamrah, Chanel, vainilla…"
+          class:list={[controlClass, 'pl-5']}
           data-filter-search
         />
       </div>
     </div>
-    <div>
-      <label for="filtro-orden" class="block text-sm font-semibold text-navy-900">
+    <div class="md:col-span-4 lg:col-span-3">
+      <label for="catalogo-orden" class="text-sm font-medium text-noir-950">
         Ordenar por
       </label>
-      <div class="relative mt-1">
-        <select
-          id="filtro-orden"
-          name="orden"
-          class="min-h-6 w-full cursor-pointer appearance-none rounded-md border border-stone bg-ivory pr-5 pl-2 text-base text-ink hover:border-taupe focus:border-navy-900 md:w-auto"
-          data-filter-sort
-        >
-          {SORT_OPTIONS.map((option) => (
-            <option value={option.value}>{option.label}</option>
-          ))}
-        </select>
-        <Icon
-          name="chevron-down"
-          class="pointer-events-none absolute top-1/2 right-1.5 size-2 -translate-y-1/2 text-taupe"
-        />
-      </div>
+      <select
+        id="catalogo-orden"
+        name="orden"
+        class:list={[controlClass, 'mt-0.5']}
+        data-filter-sort
+      >
+        {SORT_OPTIONS.map((option) => (
+          <option value={option.value}>{option.label}</option>
+        ))}
+      </select>
+    </div>
+    <div class="md:col-span-2">
+      <button
+        type="reset"
+        class="min-h-6 w-full rounded-xs px-1 text-sm font-medium text-noir-950 underline underline-offset-4 hover:decoration-2 disabled:cursor-not-allowed disabled:text-noir-500 disabled:no-underline"
+        data-filters-reset
+        disabled
+      >
+        Limpiar filtros
+      </button>
     </div>
   </div>
 
   <fieldset class="mt-2">
-    <legend class="text-sm font-semibold text-navy-900">Categoría</legend>
+    <legend class="text-sm font-medium text-noir-950">Categoría</legend>
     <div class="mt-1 flex flex-wrap gap-1">
-      <label>
+      <label class={chipClass}>
         <input
           type="radio"
           name="categoria"
           value=""
-          class="peer sr-only"
+          class="sr-only"
           checked
           data-filter-category
         />
-        <span class={chipClass}>Todas</span>
+        Todas
       </label>
       {CATEGORY_LIST.map((category) => (
-        <label>
+        <label class={chipClass}>
           <input
             type="radio"
             name="categoria"
             value={category.slug}
-            class="peer sr-only"
+            class="sr-only"
             data-filter-category
           />
-          <span class={chipClass}>{category.name}</span>
+          {category.name}
         </label>
       ))}
     </div>
   </fieldset>
-
-  <div class="mt-2 flex flex-wrap items-center justify-between gap-1 border-t border-stone pt-2">
-    <p
-      role="status"
-      aria-live="polite"
-      aria-atomic="true"
-      class="text-sm text-taupe"
-      data-results-status
-    >
-      {total === 1 ? '1 producto disponible' : `${total} productos en el catálogo`}
-    </p>
-    <button
-      type="reset"
-      class="text-sm font-semibold text-navy-900 underline-offset-4 hover:underline active:text-navy-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:no-underline"
-      disabled
-      data-filters-reset
-    >
-      Limpiar filtros
-    </button>
-  </div>
 </form>
+
+<p class="mt-2 text-sm text-noir-600">
+  <span role="status" aria-live="polite" data-results-status>
+    {total} {total === 1 ? 'producto' : 'productos'} en el catálogo
+  </span>
+</p>

@@ -1,74 +1,59 @@
 ---
 import { Picture } from 'astro:assets';
-import heroImage from '@/assets/marca/hero.jpg';
-import { buildWhatsAppUrl } from '@/utils/whatsapp';
+import heroImage from '@/assets/productos/chanel-bleu-de-chanel-frasco.jpg';
 import Container from '../layout/Container.astro';
 import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
+import Texture from '../ui/Texture.astro';
 
-const highlights = [
-  '100 % originales y sellados',
-  'Entrega en todo El Salvador',
-  'Asesoría personalizada',
-];
+const HIGHLIGHTS = ['100 % originales', 'Decants de 3, 5 y 10 ml', 'Cotizaciones para empresas'];
 ---
 
-<section aria-labelledby="hero-titulo" class="relative overflow-hidden">
-  <Container class="grid items-center gap-5 py-6 sm:py-8 lg:grid-cols-12 lg:gap-6 lg:py-10">
+<section aria-labelledby="hero-titulo" class="on-dark relative isolate overflow-hidden bg-noir-950">
+  <Texture priority />
+  <Container class="relative grid items-center gap-4 py-6 lg:grid-cols-12 lg:gap-6 lg:py-10">
     <div class="lg:col-span-6">
-      <p class="mb-2 text-sm font-semibold tracking-[0.2em] text-gold-700 uppercase">
-        Perfumería original en El Salvador
-      </p>
-      <h1 id="hero-titulo" class="text-5xl">
-        Fragancias originales que dejan huella en cada encuentro
+      <p class="eyebrow text-noir-300">Perfumes & decants originales · El Salvador</p>
+      <h1 id="hero-titulo" class="mt-2 text-5xl text-white">
+        Fragancias originales que dejan huella
       </h1>
-      <p class="mt-3 max-w-xl text-lg text-taupe">
-        Perfumes sellados y decants extraídos del frasco original de Dior, Chanel, Tom Ford y más.
-        Asesoría experta y regalos corporativos que hablan bien de su empresa.
+      <p class="mt-3 max-w-xl text-lg text-noir-200">
+        Perfumes de diseñador y árabes, sellados o en decants, con asesoría personalizada. Elija el
+        regalo perfecto para sus clientes, su equipo o para usted.
       </p>
       <div class="mt-4 flex flex-col gap-2 sm:flex-row">
-        <Button href="/catalogo/" size="lg">
+        <Button href="/catalogo/" variant="light" size="lg">
           Ver catálogo
-          <Icon
-            name="arrow-right"
-            class="size-2.5 transition-transform duration-200 ease-out group-hover:translate-x-0.5"
-          />
+          <Icon name="arrow-right" class="size-2" />
         </Button>
-        <Button href={buildWhatsAppUrl()} external variant="outline" size="lg">
-          <Icon name="whatsapp" class="size-2.5" />
-          Escribir por WhatsApp
+        <Button href="/contacto/" variant="outline-light" size="lg">
+          Contáctanos
         </Button>
       </div>
-      <ul class="mt-4 grid gap-1 text-sm text-ink sm:grid-cols-3 sm:gap-2">
-        {highlights.map((item) => (
+      <ul class="mt-5 flex flex-wrap gap-x-3 gap-y-1 text-sm text-noir-200">
+        {HIGHLIGHTS.map((item) => (
           <li class="flex items-center gap-1">
-            <Icon name="check" class="size-2 text-gold-700" />
+            <Icon name="check" class="size-2 text-white" />
             {item}
           </li>
         ))}
       </ul>
     </div>
 
-    <div class="relative lg:col-span-6">
+    <div class="lg:col-span-6">
       <Picture
         src={heroImage}
-        alt="Frasco de perfume y decant de vidrio con tapas doradas sobre fondo azul marino iluminado"
+        alt="Frasco de Bleu de Chanel Parfum junto a decants de 3, 5 y 10 ml sobre fondo negro"
         formats={['avif', 'webp']}
-        widths={[400, 600, 800, 1000, 1200]}
-        sizes="(min-width: 1280px) 608px, (min-width: 1024px) 48vw, calc(100vw - 32px)"
-        width={1000}
-        height={1250}
+        widths={[360, 560, 760, 993]}
+        sizes="(min-width: 1280px) 600px, (min-width: 1024px) 46vw, calc(100vw - 32px)"
+        width={993}
+        height={880}
         loading="eager"
         fetchpriority="high"
-        class="aspect-4/5 h-auto w-full rounded-lg object-cover shadow-card-hover"
+        decoding="sync"
+        class="h-auto w-full [mask-image:radial-gradient(ellipse_at_center,black_58%,transparent_78%)]"
       />
-      <div class="absolute bottom-2 left-2 flex max-w-[16rem] items-center gap-1.5 rounded-md bg-white/95 p-2 shadow-card sm:bottom-3 sm:left-3">
-        <Icon name="shield-check" class="size-4 text-navy-900" />
-        <p class="text-sm leading-snug">
-          <span class="block font-semibold text-navy-900">Autenticidad garantizada</span>
-          <span class="text-taupe">Frascos sellados y con comprobante</span>
-        </p>
-      </div>
     </div>
   </Container>
 </section>

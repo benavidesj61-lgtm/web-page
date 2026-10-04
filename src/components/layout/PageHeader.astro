@@ -1,0 +1,28 @@
+---
+import Texture from '../ui/Texture.astro';
+import Breadcrumbs, { type BreadcrumbItem } from './Breadcrumbs.astro';
+import Container from './Container.astro';
+
+interface Props {
+  id: string;
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  breadcrumbs?: readonly BreadcrumbItem[];
+}
+
+const { id, eyebrow, title, description, breadcrumbs } = Astro.props;
+---
+
+<section aria-labelledby={id} class="on-dark relative isolate overflow-hidden bg-noir-950">
+  <Texture priority />
+  <Container class="relative py-5 lg:py-7">
+    {breadcrumbs && <Breadcrumbs items={breadcrumbs} dark />}
+    {eyebrow && <p class="eyebrow mt-3 text-noir-300">{eyebrow}</p>}
+    <h1 id={id} class="mt-1.5 max-w-3xl text-4xl">
+      {title}
+    </h1>
+    {description && <p class="mt-2 max-w-2xl text-lg text-noir-200">{description}</p>}
+    <slot />
+  </Container>
+</section>

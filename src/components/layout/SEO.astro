@@ -1,23 +1,20 @@
 ---
-import type { ImageMetadata } from 'astro';
-import { getImage } from 'astro:assets';
-import { SITE } from '@/config/site';
+import { SITE } from '@/data/site';
+import type { JsonLd } from '@/utils/jsonld';
 import { absoluteUrl } from '@/utils/url';
 
-export type JsonLd = Record<string, unknown>;
-
-export interface SeoProps {
+export interface SEOProps {
   title: string;
   description: string;
-  /** Local image (optimized to a 1200px JPG) or a path inside /public. */
-  image?: ImageMetadata | string | undefined;
-  imageAlt?: string | undefined;
+  /** Absolute path inside /public or an optimized image URL. */
+  image?: string;
+  imageAlt?: string;
   type?: 'website' | 'product';
   noindex?: boolean;
   jsonLd?: JsonLd | readonly JsonLd[];
 }
 
-type Props = SeoProps;
+type Props = SEOProps;
 
 const {
   title,
@@ -31,27 +28,14 @@ const {
 
 const fullTitle = title === SITE.name ? title : `${title} | ${SITE.name}`;
 const canonical = absoluteUrl(Astro.url.pathname);
-
-let imageUrl: string;
-if (typeof image === 'string') {
-  imageUrl = absoluteUrl(image);
-} else {
-  const optimized = await getImage({ src: image, width: 1200, format: 'jpg', quality: 80 });
-  imageUrl = absoluteUrl(optimized.src);
-}
-
-const schemas = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];
-// Escaping "<" keeps product text from ever closing the <script> tag.
-const serialize = (data: JsonLd) => JSON.stringify(data).replace(/</g, '\\u003c');
+const imageUrl = absoluteUrl(image);
+const schemas = jsonLd === undefined ? [] : Array.isArray(jsonLd) ? jsonLd : [jsonLd];
 ---
 
 <title>{fullTitle}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
-<meta
-  name="robots"
-  content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large'}
-/>
+{noindex && <meta name="robots" content="noindex, follow" />}
 
 <meta property="og:type" content={type === 'product' ? 'product' : 'website'} />
 <meta property="og:site_name" content={SITE.name} />
@@ -69,5 +53,9 @@ const serialize = (data: JsonLd) => JSON.stringify(data).replace(/</g, '\\u003c'
 <meta name="twitter:image:alt" content={imageAlt} />
 
 {schemas.map((schema) => (
-  <script is:inline type="application/ld+json" set:html={serialize(schema)} />
+  <script
+    is:inline
+    type="application/ld+json"
+    set:html={JSON.stringify(schema).replace(/</g, '\\u003c')}
+  />
 ))}

@@ -1,10 +1,18 @@
 [build]
-  command = "npm run build"
+  # npm ci installs exactly what package-lock.json pins; check:dist fails the deploy if a secret leaks.
+  command = "npm ci && npm run build && npm run check:dist"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "22"
 
+[functions]
+  node_bundler = "esbuild"
+
+# Netlify serves every site over HTTPS and 301-redirects HTTP automatically once the certificate
+# is issued. These headers apply to static files; the API function sets its own (lib/server/http.ts).
+
+# Fingerprinted assets never change, so they can be cached forever.
 [[headers]]
   for = "/_astro/*"
   [headers.values]
@@ -13,6 +21,12 @@
 [[headers]]
   for = "/*"
   [headers.values]
+    # No inline scripts or styles exist (see CLAUDE.md), so no 'unsafe-inline' and no 'unsafe-eval'.
+    # Third parties: Cloudflare Turnstile (script + iframe) and the Google Maps embed (iframe).
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://challenges.cloudflare.com; style-src 'self'; img-src 'self'; font-src 'self'; connect-src 'self'; frame-src https://challenges.cloudflare.com https://www.google.com https://maps.google.com; manifest-src 'self'; worker-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; upgrade-insecure-requests"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+    Permissions-Policy = "accelerometer=(), autoplay=(), browsing-topics=(), camera=(), display-capture=(), encrypted-media=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), publickey-credentials-get=(), screen-wake-lock=(), serial=(), usb=(), xr-spatial-tracking=()"
+    Cross-Origin-Opener-Policy = "same-origin"

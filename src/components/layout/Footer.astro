@@ -1,30 +1,33 @@
 ---
-import { CONTACT, OPENING_HOURS, SITE, SOCIAL_LINKS } from '@/config/site';
-import { CATEGORY_LIST } from '@/data/categories';
-import { buildWhatsAppUrl } from '@/utils/whatsapp';
+import {
+  CLOSED_DAYS_LABEL,
+  CONTACT,
+  NAV_ITEMS,
+  OPENING_HOURS,
+  SITE,
+  SOCIAL_LINKS,
+} from '@/data/site';
+import { buildMailtoHref, formatAddress, getMapLinkUrl, PHONE_HREF } from '@/utils/contact';
 import Icon from '../ui/Icon.astro';
 import Container from './Container.astro';
 import Logo from './Logo.astro';
 
-// Build-time year: the site is rebuilt on every content change, which keeps it current.
 const year = new Date().getFullYear();
-
-const companyLinks = [
-  { label: 'Inicio', href: '/' },
-  { label: 'Catálogo completo', href: '/catalogo/' },
-  { label: 'Por qué elegirnos', href: '/#por-que-elegirnos' },
-  { label: 'Preguntas frecuentes', href: '/#preguntas-frecuentes' },
-  { label: 'Contacto', href: '/contacto/' },
-];
-
-const linkClass = 'text-mist hover:text-white hover:underline underline-offset-4';
+const headingClass = 'eyebrow text-noir-400 font-sans';
+const linkClass = 'underline-offset-4 hover:text-white hover:underline';
 ---
 
-<footer class="on-dark bg-navy-900 text-mist">
-  <Container class="grid gap-5 py-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-4">
-    <div class="lg:col-span-4">
-      <Logo onDark />
-      <p class="mt-3 max-w-xs text-sm">{SITE.description}</p>
+<footer class="on-dark bg-noir-950 text-noir-300" aria-labelledby="pie-titulo">
+  <h2 id="pie-titulo" class="sr-only">
+    Información de {SITE.name}
+  </h2>
+  <Container class="grid gap-5 py-6 sm:grid-cols-2 lg:grid-cols-12 lg:gap-4 lg:py-8">
+    <div class="sm:col-span-2 lg:col-span-4">
+      <Logo />
+      <p class="mt-3 max-w-sm text-sm">
+        Fragancias 100 % originales, selladas y en decants, para regalar, coleccionar y sorprender.
+        Atención personalizada para empresas y clientes particulares en todo El Salvador.
+      </p>
       <ul class="mt-3 flex gap-1" aria-label="Redes sociales">
         {SOCIAL_LINKS.map((social) => (
           <li>
@@ -32,94 +35,81 @@ const linkClass = 'text-mist hover:text-white hover:underline underline-offset-4
               href={social.href}
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex size-6 items-center justify-center rounded-full border border-white/25 text-white hover:border-gold-500 hover:text-gold-300"
+              class="inline-flex size-6 items-center justify-center rounded-full border border-noir-700 text-noir-200 hover:border-white hover:bg-white hover:text-noir-950"
             >
-              <Icon name={social.network} class="size-2" />
-              <span class="sr-only">{`${social.label} de ${SITE.name} (abre en una pestaña nueva)`}</span>
+              <Icon name={social.network} class="size-2.5" />
+              <span class="sr-only">
+                {social.label} de {SITE.name} (abre en una pestaña nueva)
+              </span>
             </a>
           </li>
         ))}
       </ul>
     </div>
 
-    <nav aria-labelledby="footer-catalogo" class="lg:col-span-2">
-      <h2
-        id="footer-catalogo"
-        class="font-sans text-sm font-semibold tracking-widest text-white uppercase"
-      >
-        Catálogo
-      </h2>
+    <nav aria-labelledby="pie-navegacion" class="lg:col-span-2">
+      <h3 id="pie-navegacion" class={headingClass}>
+        Navegación
+      </h3>
       <ul class="mt-2 space-y-1 text-sm">
-        {CATEGORY_LIST.map((category) => (
+        {NAV_ITEMS.map((item) => (
           <li>
-            <a href={`/catalogo/?categoria=${category.slug}`} class={linkClass}>
-              {category.name}
+            <a href={item.href} class={linkClass}>
+              {item.label}
             </a>
           </li>
         ))}
       </ul>
     </nav>
 
-    <nav aria-labelledby="footer-empresa" class="lg:col-span-2">
-      <h2
-        id="footer-empresa"
-        class="font-sans text-sm font-semibold tracking-widest text-white uppercase"
-      >
-        LE SCENT
-      </h2>
-      <ul class="mt-2 space-y-1 text-sm">
-        {companyLinks.map((link) => (
-          <li>
-            <a href={link.href} class={linkClass}>
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
-
-    <div class="lg:col-span-4">
-      <h2 class="font-sans text-sm font-semibold tracking-widest text-white uppercase">Contacto</h2>
+    <div class="lg:col-span-3">
+      <h3 class={headingClass}>Contacto</h3>
       <address class="mt-2 space-y-1.5 text-sm not-italic">
-        <a
-          href={buildWhatsAppUrl()}
-          target="_blank"
-          rel="noopener noreferrer"
-          class:list={['flex items-center gap-1', linkClass]}
-        >
-          <Icon name="whatsapp" class="size-2 text-gold-300" />
-          WhatsApp {CONTACT.whatsappDisplay}
-        </a>
-        <a href={`mailto:${CONTACT.email}`} class:list={['flex items-center gap-1', linkClass]}>
-          <Icon name="mail" class="size-2 text-gold-300" />
-          {CONTACT.email}
-        </a>
+        <p class="flex items-center gap-1">
+          <Icon name="phone" class="size-2" />
+          <a href={PHONE_HREF} class={linkClass}>
+            {CONTACT.phone.display}
+          </a>
+        </p>
+        <p class="flex items-center gap-1">
+          <Icon name="mail" class="size-2" />
+          <a href={buildMailtoHref()} class:list={[linkClass, 'break-all']}>
+            {CONTACT.email}
+          </a>
+        </p>
         <p class="flex items-start gap-1">
-          <Icon name="map-pin" class="mt-0.5 size-2 text-gold-300" />
-          <span>
-            {CONTACT.address.street}, {CONTACT.address.city}, {CONTACT.address.countryName}
-          </span>
+          <Icon name="map-pin" class="mt-0.5 size-2" />
+          <a href={getMapLinkUrl()} target="_blank" rel="noopener noreferrer" class={linkClass}>
+            {formatAddress()}
+            <span class="sr-only">(ver en Google Maps, abre en una pestaña nueva)</span>
+          </a>
         </p>
       </address>
-      <ul class="mt-2 space-y-0.5 text-sm">
+    </div>
+
+    <div class="lg:col-span-3">
+      <h3 class={headingClass}>Horario de atención</h3>
+      <dl class="mt-2 space-y-1 text-sm">
         {OPENING_HOURS.map((slot) => (
-          <li class="flex items-center gap-1">
-            <Icon name="clock" class="size-2 text-gold-300" />
-            <span>
-              <span class="text-white">{slot.label}:</span> {slot.hours}
-            </span>
-          </li>
+          <div>
+            <dt class="text-white">{slot.label}</dt>
+            <dd>{slot.hours}</dd>
+          </div>
         ))}
-      </ul>
+        <div>
+          <dt class="text-white">{CLOSED_DAYS_LABEL}</dt>
+          <dd>Cerrado</dd>
+        </div>
+      </dl>
     </div>
   </Container>
 
-  <div class="border-t border-white/10">
-    <Container class="flex flex-col gap-1 py-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+  <div class="border-t border-noir-800">
+    <Container class="flex flex-col gap-1 py-3 text-xs text-noir-400 sm:flex-row sm:items-center sm:justify-between">
       <p>
-        © {year} {SITE.legalName}. Todos los derechos reservados.
+        © <span data-current-year>{year}</span> {SITE.legalName}. Todos los derechos reservados.
       </p>
-      <p>Las marcas mencionadas pertenecen a sus respectivos propietarios.</p>
+      <p>Precios en dólares de los Estados Unidos (USD), sujetos a disponibilidad.</p>
     </Container>
   </div>
 </footer>

@@ -1,9 +1,10 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
 import type { BadgeVariant } from '@/components/ui/Badge.astro';
+import type { CategorySlug } from '@/data/categories';
 
 export type Product = CollectionEntry<'productos'>;
 
-/** Products published within this many days get the "Nuevo" badge. */
+/** Products published within this many days (at build time) get the "Nuevo" badge. */
 export const NEW_PRODUCT_DAYS = 30;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -45,6 +46,13 @@ export async function getFeaturedProducts(limit = 4): Promise<Product[]> {
   return products.filter((product) => product.data.destacado).slice(0, limit);
 }
 
+export async function countProductsByCategory(): Promise<Record<CategorySlug, number>> {
+  const products = await getProducts();
+  const counts: Record<CategorySlug, number> = { disenador: 0, arabes: 0, 'sets-corporativos': 0 };
+  products.forEach((product) => (counts[product.data.categoria] += 1));
+  return counts;
+}
+
 export function getProductUrl(product: Product): string {
   return `/catalogo/${product.data.slug}/`;
 }
@@ -67,6 +75,11 @@ export function getProductBadges(product: Product): ProductBadge[] {
 
 /** Other products from the same category, newest first. */
 export function getRelatedProducts(product: Product, all: Product[], limit = 4): Product[] {
-  const others = all.filter((candidate) => candidate.data.slug !== product.data.slug);
-  return others.filter((c) => c.data.categoria === product.data.categoria).slice(0, limit);
+  return all
+    .filter(
+      (candidate) =>
+        candidate.data.slug !== product.data.slug &&
+        candidate.data.categoria === product.data.categoria,
+    )
+    .slice(0, limit);
 }

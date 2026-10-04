@@ -8,26 +8,25 @@ export interface AccordionItem {
 
 interface Props {
   items: readonly AccordionItem[];
-  /** Heading level used for each question, to keep the document outline correct. */
-  headingLevel?: 'h3' | 'h4';
+  /** Native exclusive accordion: opening one item closes the others. */
+  name: string;
 }
 
-const { items, headingLevel: Heading = 'h3' } = Astro.props;
+const { items, name } = Astro.props;
 ---
 
-<!-- Native <details>/<summary> is keyboard and screen-reader accessible without ARIA or JS. -->
-<div class="divide-y divide-stone border-y border-stone">
+<!-- <details>/<summary> are keyboard and screen-reader accessible without extra ARIA. -->
+<div class="border-t border-noir-200">
   {items.map((item) => (
-    <details class="group">
-      <summary class="flex cursor-pointer list-none items-center justify-between gap-2 py-3 text-left hover:text-navy-700 [&::-webkit-details-marker]:hidden">
-        <Heading class="font-sans text-lg font-semibold text-navy-900">{item.question}</Heading>
-        <Icon
-          name="chevron-down"
-          class="size-2.5 text-gold-700 transition-transform duration-200 ease-out group-open:rotate-180"
-        />
+    <details name={name} class="group border-b border-noir-200">
+      <summary class="flex min-h-7 cursor-pointer list-none items-center justify-between gap-2 py-2 text-left font-display text-lg text-noir-950 hover:text-noir-600 [&::-webkit-details-marker]:hidden">
+        <span>{item.question}</span>
+        <span class="inline-flex size-4 shrink-0 items-center justify-center rounded-full border border-noir-300 transition-transform duration-200 ease-out group-open:rotate-180">
+          <Icon name="chevron-down" class="size-2" />
+        </span>
       </summary>
-      <div class="pb-3 text-taupe">
-        <p class="max-w-[65ch]">{item.answer}</p>
+      <div class="pr-5 pb-3 text-noir-600">
+        <p>{item.answer}</p>
       </div>
     </details>
   ))}

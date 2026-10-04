@@ -7,119 +7,111 @@ import ProductGrid from '@/components/catalogo/ProductGrid.astro';
 import ProductInfo from '@/components/catalogo/ProductInfo.astro';
 import Breadcrumbs, { type BreadcrumbItem } from '@/components/layout/Breadcrumbs.astro';
 import Container from '@/components/layout/Container.astro';
-import Badge from '@/components/ui/Badge.astro';
-import SectionHeading from '@/components/ui/SectionHeading.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
 import { CATEGORIES } from '@/data/categories';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildBreadcrumbSchema, buildProductSchema } from '@/utils/jsonld';
-import { formatPrice } from '@/utils/price';
 import { getProducts, getProductUrl, getRelatedProducts, type Product } from '@/utils/products';
-import { absoluteUrl } from '@/utils/url';
 
 export const getStaticPaths = (async () => {
   const products = await getProducts();
-  return products.map((product) => ({ params: { slug: product.data.slug }, props: { product } }));
+  return products.map((product) => ({
+    params: { slug: product.data.slug },
+    props: { product, related: getRelatedProducts(product, products) },
+  }));
 }) satisfies GetStaticPaths;
 
 interface Props {
   product: Product;
+  related: Product[];
 }
 
-const { product } = Astro.props;
+const { product, related } = Astro.props;
 const { data } = product;
 const { Content } = await render(product);
 const category = CATEGORIES[data.categoria];
-const related = getRelatedProducts(product, await getProducts());
+const url = getProductUrl(product);
 
 const breadcrumbs: BreadcrumbItem[] = [
   { label: 'Inicio', href: '/' },
   { label: 'Catálogo', href: '/catalogo/' },
   { label: category.name, href: `/catalogo/?categoria=${category.slug}` },
-  { label: data.nombre, href: getProductUrl(product) },
+  { label: data.nombre, href: url },
 ];
 
-const schemaImages = await Promise.all(
-  data.imagenes.map(async (image) => {
-    const optimized = await getImage({ src: image.src, width: 1200, format: 'jpg', quality: 80 });
-    return absoluteUrl(optimized.src);
-  }),
+// JPEG for social previews and structured data: every crawler and chat app can read it.
+const sharedImages = await Promise.all(
+  data.imagenes.map((image) => getImage({ src: image.src, width: 993, format: 'jpg' })),
 );
-
+const [ogImage] = sharedImages;
 const [cover] = data.imagenes;
-const metaDescription = `${data.descripcion} Precio: ${formatPrice(data.precio)}.`;
+
+const productSchema = buildProductSchema({
+  name: data.nombre,
+  description: data.descripcion,
+  url,
+  images: sharedImages.map((image) => image.src),
+  brand: data.marca,
+  category: category.name,
+  sku: data.sku,
+  price: data.precio,
+  sizeMl: data.contenidoMl,
+  decants: data.decants,
+  available: data.disponible,
+});
 ---
 
 <BaseLayout
-  title={data.nombre}
-  description={metaDescription}
-  image={cover?.src}
-  imageAlt={cover?.alt}
+  title={`${data.nombre}${data.contenidoMl ? ` ${data.contenidoMl} ml` : ''}`}
+  description={data.descripcion}
   type="product"
-  jsonLd={[buildProductSchema(product, schemaImages), buildBreadcrumbSchema(breadcrumbs)]}
+  {...(ogImage ? { image: ogImage.src } : {})}
+  {...(cover ? { imageAlt: cover.alt } : {})}
+  jsonLd={[productSchema, buildBreadcrumbSchema(breadcrumbs)]}
 >
-  <Container class="py-3 lg:py-4">
+  <Container class="pt-3 pb-6 lg:pb-10">
     <Breadcrumbs items={breadcrumbs} />
-  </Container>
 
-  <Container class="pb-6 lg:pb-8">
-    <article class="grid gap-4 lg:grid-cols-12 lg:gap-6">
+    <article class="mt-3 grid gap-4 lg:grid-cols-12 lg:gap-6">
       <div class="lg:col-span-7">
-        <Galeria images={data.imagenes} productName={data.nombre} />
-      </div>
-      <div class="lg:col-span-5">
         <div class="lg:sticky lg:top-12">
-          <ProductInfo product={product} />
+          <Galeria images={data.imagenes} productName={data.nombre} />
         </div>
       </div>
-
-      <div class="grid gap-4 border-t border-stone pt-4 lg:col-span-12 lg:grid-cols-12 lg:gap-6">
-        <section aria-labelledby="descripcion-titulo" class="lg:col-span-7">
+      <div class="lg:col-span-5">
+        <ProductInfo product={product} />
+        <section aria-labelledby="descripcion-titulo" class="mt-4">
           <h2 id="descripcion-titulo" class="text-2xl">
             Descripción
           </h2>
-          <div class="prose-lescent mt-2 text-lg">
+          <div class="prose-lescent mt-1">
             <Content />
           </div>
-          {data.etiquetas && data.etiquetas.length > 0 && (
-            <ul class="mt-3 flex flex-wrap gap-1" aria-label="Etiquetas">
-              {data.etiquetas.map((tag) => (
-                <li>
-                  <Badge>{tag}</Badge>
-                </li>
-              ))}
-            </ul>
-          )}
         </section>
-
-        {data.caracteristicas && data.caracteristicas.length > 0 && (
-          <section aria-labelledby="caracteristicas-titulo" class="lg:col-span-5">
-            <h2 id="caracteristicas-titulo" class="text-2xl">
-              Características
-            </h2>
-            <ul class="mt-2 divide-y divide-stone rounded-lg bg-white px-2 shadow-card">
-              {data.caracteristicas.map((feature) => (
-                <li class="py-1.5 text-ink">{feature}</li>
-              ))}
-            </ul>
-            {data.sku && <p class="mt-2 text-sm text-taupe">SKU: {data.sku}</p>}
-          </section>
-        )}
       </div>
     </article>
   </Container>
 
   {related.length > 0 && (
-    <section aria-labelledby="relacionados-titulo" class="border-t border-stone bg-sand py-8">
+    <section aria-labelledby="relacionados-titulo" class="bg-noir-50 py-6 lg:py-10">
       <Container>
-        <div data-reveal>
-          <SectionHeading
-            id="relacionados-titulo"
-            eyebrow={category.name}
-            title="También le puede interesar"
-          />
+        <div class="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p class="eyebrow text-noir-500">{category.name}</p>
+            <h2 id="relacionados-titulo" class="mt-1.5 text-3xl">
+              También le puede interesar
+            </h2>
+          </div>
+          <div class="shrink-0">
+            <Button href={`/catalogo/?categoria=${category.slug}`} variant="link">
+              Ver toda la categoría
+              <Icon name="arrow-right" class="size-2" />
+            </Button>
+          </div>
         </div>
         <div class="mt-4" data-reveal>
-          <ProductGrid products={related} />
+          <ProductGrid products={related} label={`Más productos de ${category.name}`} />
         </div>
       </Container>
     </section>

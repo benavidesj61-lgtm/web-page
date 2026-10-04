@@ -1,72 +1,88 @@
 ---
 import type { HTMLAttributes } from 'astro/types';
 
-type Variant = 'primary' | 'accent' | 'outline' | 'outline-light' | 'ghost';
-type Size = 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'primary' | 'outline' | 'light' | 'outline-light' | 'link';
+export type ButtonSize = 'md' | 'lg';
 
-type Props = {
-  variant?: Variant;
-  size?: Size;
-  href?: string;
-  external?: boolean;
+interface BaseProps {
+  variant?: ButtonVariant;
+  size?: ButtonSize;
   fullWidth?: boolean;
-  disabled?: boolean;
-  type?: 'button' | 'submit' | 'reset';
   class?: string;
-} & Omit<HTMLAttributes<'a'> & HTMLAttributes<'button'>, 'type' | 'class' | 'disabled'>;
+}
+
+type LinkProps = BaseProps &
+  Omit<HTMLAttributes<'a'>, 'class'> & {
+    href: string;
+    /** Opens in a new tab with safe rel attributes. */
+    external?: boolean;
+  };
+
+type NativeButtonProps = BaseProps &
+  Omit<HTMLAttributes<'button'>, 'class'> & {
+    href?: never;
+    external?: never;
+  };
+
+type Props = LinkProps | NativeButtonProps;
 
 const {
   variant = 'primary',
   size = 'md',
-  href,
-  external = false,
   fullWidth = false,
-  disabled = false,
-  type = 'button',
   class: className,
+  external = false,
+  type,
   ...rest
 } = Astro.props;
 
-const VARIANTS: Record<Variant, string> = {
-  primary: 'bg-navy-900 text-white hover:bg-navy-800 active:bg-navy-950',
-  accent: 'bg-gold-500 text-navy-950 hover:bg-gold-400 active:bg-gold-600',
+/*
+ * Colors swap instantly on hover (no color transition); only `transform` animates on press,
+ * per the motion rules. `primary`/`outline` sit on light backgrounds, `light`/`outline-light`
+ * on black sections.
+ */
+const VARIANTS: Record<ButtonVariant, string> = {
+  primary:
+    'bg-noir-950 text-white border border-noir-950 hover:bg-noir-700 hover:border-noir-700 active:bg-noir-800',
   outline:
-    'border border-navy-900 text-navy-900 hover:bg-navy-900 hover:text-white active:bg-navy-950',
+    'border border-noir-950 text-noir-950 bg-transparent hover:bg-noir-950 hover:text-white active:bg-noir-800',
+  light:
+    'bg-white text-noir-950 border border-white hover:bg-noir-100 hover:border-noir-100 active:bg-noir-200',
   'outline-light':
-    'border border-white/70 text-white hover:bg-white hover:text-navy-900 active:bg-navy-100',
-  ghost: 'text-navy-900 underline-offset-4 hover:underline active:text-navy-700',
+    'border border-white/70 text-white bg-transparent hover:bg-white hover:text-noir-950 hover:border-white active:bg-noir-100',
+  link: 'text-noir-950 underline decoration-1 underline-offset-[6px] hover:decoration-2 px-0',
 };
 
-const SIZES: Record<Size, string> = {
-  sm: 'min-h-5 gap-1 px-2 text-sm',
-  md: 'min-h-6 gap-1 px-3 text-base',
-  lg: 'min-h-7 gap-1.5 px-4 text-base',
+const SIZES: Record<ButtonSize, string> = {
+  md: 'min-h-6 px-3 text-sm',
+  lg: 'min-h-7 px-4 text-sm',
 };
+
+// Native buttons default to "submit"; default to "button" so only explicit submits send forms.
+const buttonType = type === 'submit' || type === 'reset' ? type : 'button';
 
 const classes = [
-  'group inline-flex items-center justify-center rounded-md font-semibold tracking-wide',
-  'transition-transform duration-150 ease-out active:scale-[0.98]',
-  'aria-disabled:pointer-events-none aria-disabled:opacity-50',
-  'disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100',
+  'inline-flex items-center justify-center gap-1 rounded-xs font-medium tracking-[0.14em] uppercase',
+  'transition-transform duration-150 ease-out active:translate-y-px',
+  'disabled:cursor-not-allowed disabled:opacity-50 disabled:active:translate-y-0 aria-disabled:pointer-events-none aria-disabled:opacity-50',
   VARIANTS[variant],
-  SIZES[size],
+  variant === 'link' ? 'min-h-6' : SIZES[size],
   fullWidth && 'w-full',
   className,
 ];
-
-const externalProps = external ? { target: '_blank', rel: 'noopener noreferrer' } : {};
 ---
 
-{href && !disabled ? (
-  <a href={href} class:list={classes} {...externalProps} {...rest}>
+{'href' in rest && rest.href !== undefined ? (
+  <a
+    class:list={classes}
+    {...rest}
+    {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+  >
     <slot />
-  </a>
-) : href ? (
-  <a role="link" aria-disabled="true" class:list={classes} {...rest}>
-    <slot />
+    {external && <span class="sr-only">(abre en una pestaña nueva)</span>}
   </a>
 ) : (
-  <button type={type} disabled={disabled} class:list={classes} {...rest}>
+  <button type={buttonType} class:list={classes} {...rest}>
     <slot />
   </button>
 )}

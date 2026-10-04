@@ -15,10 +15,4 @@ npm-debug.log*
 
 # editors / OS
 .DS_Store
-.vscode/*
-!.vscode/extensions.json
 .idea/
-
-# tooling
-.netlify/
-.vercel/

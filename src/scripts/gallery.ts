@@ -1,6 +1,6 @@
 /**
- * Product gallery: thumbnails switch the main image, arrow keys navigate,
- * and the native <dialog> lightbox handles Escape and focus containment.
+ * Product gallery: thumbnails switch the main image, arrow keys navigate, and the native
+ * <dialog> lightbox provides Escape-to-close and keeps focus inside while open.
  */
 export function initGallery(): void {
   const root = document.querySelector<HTMLElement>('[data-gallery]');
@@ -13,7 +13,6 @@ export function initGallery(): void {
   const counter = dialog.querySelector<HTMLElement>('[data-lightbox-counter]');
   const total = mains.length;
   let current = 0;
-  let opener: HTMLElement | null = null;
 
   const wrap = (index: number) => (index + total) % total;
 
@@ -26,10 +25,12 @@ export function initGallery(): void {
     if (focusThumb) thumbs[current]?.focus();
   };
 
+  const KEY_STEPS: Partial<Record<string, number>> = { ArrowRight: 1, ArrowLeft: -1 };
+
   thumbs.forEach((thumb, index) => {
     thumb.addEventListener('click', () => show(index));
     thumb.addEventListener('keydown', (event) => {
-      const step = { ArrowRight: 1, ArrowLeft: -1 }[event.key];
+      const step = KEY_STEPS[event.key];
       if (step !== undefined) {
         event.preventDefault();
         show(current + step, { focusThumb: true });
@@ -40,31 +41,22 @@ export function initGallery(): void {
     });
   });
 
-  mains.forEach((main) =>
-    main.addEventListener('click', () => {
-      opener = main;
-      dialog.showModal();
-    }),
-  );
+  mains.forEach((main) => main.addEventListener('click', () => dialog.showModal()));
 
   dialog.querySelector('[data-lightbox-close]')?.addEventListener('click', () => dialog.close());
   dialog.querySelector('[data-lightbox-prev]')?.addEventListener('click', () => show(current - 1));
   dialog.querySelector('[data-lightbox-next]')?.addEventListener('click', () => show(current + 1));
 
   dialog.addEventListener('keydown', (event) => {
-    if (total < 2) return;
-    if (event.key === 'ArrowRight') show(current + 1);
-    if (event.key === 'ArrowLeft') show(current - 1);
+    const step = KEY_STEPS[event.key];
+    if (total > 1 && step !== undefined) show(current + step);
   });
 
-  // Clicking the backdrop (the dialog box itself, outside its content) closes it.
+  // A click on the backdrop targets the <dialog> itself, not its content.
   dialog.addEventListener('click', (event) => {
     if (event.target === dialog) dialog.close();
   });
 
-  // The main image may have changed while open, so focus returns to the visible one.
-  dialog.addEventListener('close', () => {
-    const visibleMain = mains[current];
-    (visibleMain ?? opener)?.focus();
-  });
+  // The image may have changed while open, so focus returns to the visible main image.
+  dialog.addEventListener('close', () => mains[current]?.focus());
 }

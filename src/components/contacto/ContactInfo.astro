@@ -1,0 +1,87 @@
+---
+import { CLOSED_DAYS_LABEL, CONTACT, OPENING_HOURS, SITE, SOCIAL_LINKS } from '@/data/site';
+import { buildMailtoHref, formatAddress, getMapLinkUrl, PHONE_HREF } from '@/utils/contact';
+import Icon from '../ui/Icon.astro';
+import Texture from '../ui/Texture.astro';
+
+const linkClass = 'text-white underline-offset-4 hover:underline break-all';
+const labelClass = 'eyebrow text-noir-400';
+---
+
+<div class="on-dark relative isolate overflow-hidden bg-noir-950 p-3 text-noir-200 sm:p-4">
+  <Texture />
+  <div class="relative">
+    <h2 class="text-3xl">Información de contacto</h2>
+    <p class="mt-1">¿Prefiere hablar directamente? Estamos para atenderle.</p>
+
+    <address class="mt-3 space-y-2 not-italic">
+      <div class="flex gap-1.5">
+        <Icon name="phone" class="mt-0.5 size-2.5 text-white" />
+        <div>
+          <p class={labelClass}>Teléfono</p>
+          <a href={PHONE_HREF} class:list={[linkClass, 'text-lg']}>
+            {CONTACT.phone.display}
+          </a>
+        </div>
+      </div>
+      <div class="flex gap-1.5">
+        <Icon name="mail" class="mt-0.5 size-2.5 text-white" />
+        <div>
+          <p class={labelClass}>Correo electrónico</p>
+          <a
+            href={buildMailtoHref(`Consulta desde el sitio web | ${SITE.name}`)}
+            class:list={[linkClass, 'text-lg']}
+          >
+            {CONTACT.email}
+          </a>
+        </div>
+      </div>
+      <div class="flex gap-1.5">
+        <Icon name="map-pin" class="mt-0.5 size-2.5 text-white" />
+        <div>
+          <p class={labelClass}>Dirección</p>
+          <a href={getMapLinkUrl()} target="_blank" rel="noopener noreferrer" class={linkClass}>
+            {formatAddress()}
+            <span class="sr-only">(ver en Google Maps, abre en una pestaña nueva)</span>
+          </a>
+        </div>
+      </div>
+      <div class="flex gap-1.5">
+        <Icon name="clock" class="mt-0.5 size-2.5 text-white" />
+        <div>
+          <p class={labelClass}>Horario de atención</p>
+          <dl>
+            {OPENING_HOURS.map((slot) => (
+              <div class="flex flex-wrap gap-x-1">
+                <dt>{slot.label}:</dt>
+                <dd class="text-white">{slot.hours}</dd>
+              </div>
+            ))}
+            <div class="flex flex-wrap gap-x-1">
+              <dt>{CLOSED_DAYS_LABEL}:</dt>
+              <dd class="text-white">Cerrado</dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </address>
+
+    <h3 class="mt-4 font-sans text-sm font-semibold text-white">Síganos en redes sociales</h3>
+    <ul class="mt-1 flex flex-wrap gap-1">
+      {SOCIAL_LINKS.map((social) => (
+        <li>
+          <a
+            href={social.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex min-h-5 items-center gap-1 rounded-full border border-noir-600 px-2 text-sm text-white hover:border-white hover:bg-white hover:text-noir-950"
+          >
+            <Icon name={social.network} class="size-2" />
+            {social.label}
+            <span class="sr-only">de {SITE.name} (abre en una pestaña nueva)</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>

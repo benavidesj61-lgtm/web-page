@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  GITLEAKS_VERSION: 8.30.1
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Full history so gitleaks scans every commit, not just the last one.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - name: Dependency audit (high and critical fail the build)
+        run: npm audit --audit-level=high
+
+      - name: Secret scan (gitleaks, full history)
+        run: |
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl -sSfLO "${base}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfLO "${base}/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          sha256sum --check --ignore-missing "gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          tar -xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" gitleaks
+          ./gitleaks git --redact --no-banner .
+
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
+
+      - name: Build
+        run: npm run build
+        env:
+          # Cloudflare's public test site key; production keys live in Netlify.
+          PUBLIC_TURNSTILE_SITE_KEY: 1x00000000000000000000AA
+
+      - name: Verify no secrets in dist/
+        run: npm run check:dist

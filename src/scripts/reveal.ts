@@ -1,25 +1,31 @@
-/** Adds .is-visible to [data-reveal] elements as they enter the viewport (one-shot). */
+/** Fades in [data-reveal] blocks once they enter the viewport; each block animates only once. */
 export function initReveal(): void {
-  const elements = document.querySelectorAll<HTMLElement>('[data-reveal]');
-  if (elements.length === 0) return;
+  const targets = document.querySelectorAll<HTMLElement>('[data-reveal]');
+  if (targets.length === 0) return;
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reducedMotion || !('IntersectionObserver' in window)) {
-    elements.forEach((element) => element.classList.add('is-visible'));
+  if (!('IntersectionObserver' in window)) {
+    targets.forEach((target) => target.classList.add('is-visible'));
     return;
   }
 
   const observer = new IntersectionObserver(
     (entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      }
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add('is-visible');
+        observer.unobserve(entry.target);
+      });
     },
     { rootMargin: '0px 0px -10% 0px', threshold: 0.1 },
   );
 
-  elements.forEach((element) => observer.observe(element));
+  targets.forEach((target) => observer.observe(target));
+}
+
+/** The footer year is rendered at build time; this keeps it right if the site is not rebuilt. */
+export function updateCurrentYear(): void {
+  const year = String(new Date().getFullYear());
+  document.querySelectorAll('[data-current-year]').forEach((element) => {
+    element.textContent = year;
+  });
 }

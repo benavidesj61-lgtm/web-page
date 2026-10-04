@@ -1,27 +1,24 @@
 ---
-import type { HTMLAttributes, HTMLTag } from 'astro/types';
+import type { HTMLAttributes } from 'astro/types';
 
-type Props = {
-  as?: HTMLTag;
-  /** Adds the hover shadow and the focus ring used by cards with a stretched link. */
+interface Props extends Omit<HTMLAttributes<'article'>, 'class'> {
+  /** Adds the hover elevation; the stretched link inside the card makes it clickable. */
   interactive?: boolean;
   class?: string;
-} & Omit<HTMLAttributes<'article'>, 'class'>;
+}
 
-const { as: Tag = 'article', interactive = false, class: className, ...rest } = Astro.props;
+const { interactive = false, class: className, ...rest } = Astro.props;
 ---
 
-<Tag
+<article
   class:list={[
-    'relative flex flex-col rounded-lg bg-white shadow-card',
-    // Shadow is faded in through a pseudo-element so only opacity is animated.
-    interactive && [
-      'group after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:opacity-0 after:shadow-card-hover after:transition-opacity after:duration-300 after:ease-out hover:after:opacity-100',
-      'has-[a:focus-visible]:outline-3 has-[a:focus-visible]:outline-offset-3 has-[a:focus-visible]:outline-navy-700',
-    ],
+    'relative flex flex-col bg-white',
+    // The hover shadow lives on a pseudo-element so only its opacity animates (no box-shadow repaint).
+    interactive &&
+      'group after:pointer-events-none after:absolute after:inset-0 after:opacity-0 after:shadow-card-hover after:transition-opacity after:duration-300 after:ease-out hover:after:opacity-100 has-focus-visible:after:opacity-100',
     className,
   ]}
   {...rest}
 >
   <slot />
-</Tag>
+</article>

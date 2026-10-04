@@ -1,46 +1,38 @@
 ---
 import { BENEFITS } from '@/data/home';
-import { buildWhatsAppUrl } from '@/utils/whatsapp';
 import Container from '../layout/Container.astro';
-import Button from '../ui/Button.astro';
 import Icon from '../ui/Icon.astro';
 import SectionHeading from '../ui/SectionHeading.astro';
-
-const corporateMessage =
-  'Hola, LE SCENT. Represento a una empresa y me interesa una cotización de regalos corporativos.';
+import Texture from '../ui/Texture.astro';
 ---
 
 <section
   id="por-que-elegirnos"
   aria-labelledby="beneficios-titulo"
-  class="on-dark bg-navy-900 py-8 lg:py-12"
+  class="on-dark relative isolate overflow-hidden bg-noir-950 py-6 lg:py-10"
 >
-  <Container>
-    <div class="grid gap-5 lg:grid-cols-12 lg:gap-6">
-      <div class="lg:col-span-4" data-reveal>
-        <SectionHeading
-          id="beneficios-titulo"
-          onDark
-          eyebrow="Por qué elegirnos"
-          title="La tranquilidad de comprar original"
-          description="Empresas y particulares confían en nosotros porque cuidamos cada detalle: del origen del frasco a la entrega en sus manos."
-        />
-        <Button href={buildWhatsAppUrl(corporateMessage)} external variant="accent" class="mt-4">
-          <Icon name="whatsapp" class="size-2.5" />
-          Cotizar regalos corporativos
-        </Button>
-      </div>
-      <ul class="grid gap-3 sm:grid-cols-2 lg:col-span-8" data-reveal>
-        {BENEFITS.map((benefit) => (
-          <li class="rounded-lg border border-white/10 bg-navy-800 p-3">
-            <span class="inline-flex size-6 items-center justify-center rounded-md bg-gold-500 text-navy-950">
-              <Icon name={benefit.icon} class="size-3" />
-            </span>
-            <h3 class="mt-2 font-sans text-lg font-semibold text-white">{benefit.title}</h3>
-            <p class="mt-1 text-mist">{benefit.description}</p>
-          </li>
-        ))}
-      </ul>
-    </div>
+  <Texture />
+  <Container class="relative">
+    <SectionHeading
+      id="beneficios-titulo"
+      eyebrow="Por qué elegirnos"
+      title="Perfumería de lujo con la confianza que su empresa necesita"
+      description="Desde un decant para usted hasta cientos de regalos para su equipo, cuidamos cada detalle."
+      dark
+    />
+    <ul
+      class="mt-5 grid gap-px border border-noir-800 bg-noir-800 sm:grid-cols-2 lg:grid-cols-3"
+      data-reveal
+    >
+      {BENEFITS.map((benefit) => (
+        <li class="bg-noir-950/90 p-3 lg:p-4">
+          <span class="inline-flex size-6 items-center justify-center rounded-full border border-noir-600 text-white">
+            <Icon name={benefit.icon} class="size-2.5" />
+          </span>
+          <h3 class="mt-2 text-xl">{benefit.title}</h3>
+          <p class="mt-1 text-noir-300">{benefit.description}</p>
+        </li>
+      ))}
+    </ul>
   </Container>
 </section>

@@ -11,8 +11,10 @@ export const SORT_OPTIONS = [
 
 export type SortValue = (typeof SORT_OPTIONS)[number]['value'];
 const DEFAULT_SORT: SortValue = 'recientes';
+/** Matches the input's maxlength; longer values from a shared URL are cut, never interpreted. */
+export const MAX_QUERY_LENGTH = 100;
 
-export interface FilterState {
+interface FilterState {
   category: string;
   query: string;
   sort: SortValue;
@@ -23,28 +25,26 @@ interface ProductItem {
   category: string;
   search: string;
   name: string;
-  price: number;
+  /** `null` when the price is on request; those products always sort last. */
+  price: number | null;
   date: number;
 }
 
 const isSortValue = (value: string | null): value is SortValue =>
   SORT_OPTIONS.some((option) => option.value === value);
 
-export function parseFilters(
-  params: URLSearchParams,
-  validCategories: readonly string[],
-): FilterState {
+function parseFilters(params: URLSearchParams, validCategories: readonly string[]): FilterState {
   const category = params.get('categoria') ?? '';
   const sort = params.get('orden');
   return {
     category: validCategories.includes(category) ? category : '',
-    query: (params.get('q') ?? '').trim(),
+    query: (params.get('q') ?? '').trim().slice(0, MAX_QUERY_LENGTH),
     sort: isSortValue(sort) ? sort : DEFAULT_SORT,
   };
 }
 
 /** Only non-default values go in the URL so shared links stay short. */
-export function serializeFilters(state: FilterState): string {
+function serializeFilters(state: FilterState): string {
   const params = new URLSearchParams();
   if (state.category) params.set('categoria', state.category);
   if (state.query) params.set('q', state.query);
@@ -60,10 +60,17 @@ function matches(item: ProductItem, state: FilterState): boolean {
   return terms.every((term) => item.search.includes(term));
 }
 
+const byPrice =
+  (direction: 1 | -1) =>
+  (a: ProductItem, b: ProductItem): number => {
+    if (a.price === null || b.price === null) return a.price === null ? 1 : -1;
+    return (a.price - b.price) * direction;
+  };
+
 const COMPARATORS: Record<SortValue, (a: ProductItem, b: ProductItem) => number> = {
   recientes: (a, b) => b.date - a.date,
-  'precio-asc': (a, b) => a.price - b.price,
-  'precio-desc': (a, b) => b.price - a.price,
+  'precio-asc': byPrice(1),
+  'precio-desc': byPrice(-1),
   nombre: (a, b) => a.name.localeCompare(b.name, 'es'),
 };
 
@@ -75,7 +82,7 @@ export function initCatalogFilters(): void {
   const grid = document.querySelector<HTMLElement>('[data-product-grid]');
   const searchInput = form?.querySelector<HTMLInputElement>('[data-filter-search]');
   const sortSelect = form?.querySelector<HTMLSelectElement>('[data-filter-sort]');
-  const status = form?.querySelector<HTMLElement>('[data-results-status]');
+  const status = document.querySelector<HTMLElement>('[data-results-status]');
   const resetButton = form?.querySelector<HTMLButtonElement>('[data-filters-reset]');
   const emptyState = document.querySelector<HTMLElement>('[data-empty-state]');
   const loadMore = document.querySelector<HTMLButtonElement>('[data-load-more]');
@@ -89,12 +96,13 @@ export function initCatalogFilters(): void {
   const items: ProductItem[] = [...grid.querySelectorAll<HTMLElement>('[data-product-item]')].map(
     (element) => {
       const card = element.querySelector<HTMLElement>('[data-product]');
+      const price = card?.dataset['price'] ?? '';
       return {
         element,
         category: card?.dataset['category'] ?? '',
         search: card?.dataset['search'] ?? '',
         name: card?.dataset['name'] ?? '',
-        price: Number(card?.dataset['price'] ?? 0),
+        price: price === '' ? null : Number(price),
         date: Number(card?.dataset['date'] ?? 0),
       };
     },
@@ -120,7 +128,7 @@ export function initCatalogFilters(): void {
     });
   };
 
-  const render = ({ announce }: { announce: boolean }) => {
+  const render = () => {
     const state = readForm();
     const matching = items.filter((item) => matches(item, state)).sort(COMPARATORS[state.sort]);
     const matchingSet = new Set(matching);
@@ -145,15 +153,16 @@ export function initCatalogFilters(): void {
     grid.hidden = matching.length === 0;
     if (emptyState) emptyState.hidden = matching.length > 0;
     if (loadMoreWrapper) loadMoreWrapper.hidden = shown >= matching.length;
-    if (progress) progress.textContent = `Mostrando ${shown} de ${matching.length}`;
+    if (progress) progress.textContent = `Mostrando ${shown} de ${matching.length} productos`;
     resetButton.disabled = !hasFilters;
 
-    if (announce) {
-      status.textContent =
-        matching.length === 0
-          ? 'No se encontraron productos'
-          : `${pluralize(matching.length, 'producto encontrado', 'productos encontrados')}`;
-    }
+    // Unchanged text is not re-announced, so an unfiltered first render stays silent.
+    status.textContent =
+      matching.length === 0
+        ? 'No se encontraron productos con estos filtros.'
+        : hasFilters
+          ? pluralize(matching.length, 'producto encontrado', 'productos encontrados')
+          : pluralize(matching.length, 'producto en el catálogo', 'productos en el catálogo');
 
     const url = `${window.location.pathname}${serializeFilters(state)}${window.location.hash}`;
     window.history.replaceState(null, '', url);
@@ -162,16 +171,17 @@ export function initCatalogFilters(): void {
 
   const update = () => {
     visibleLimit = PAGE_SIZE;
-    render({ announce: true });
+    render();
   };
 
   const reset = () => {
     writeForm({ category: '', query: '', sort: DEFAULT_SORT });
     update();
+    searchInput.focus();
   };
 
   writeForm(parseFilters(new URLSearchParams(window.location.search), validCategories));
-  render({ announce: false });
+  render();
 
   form.addEventListener('submit', (event) => {
     event.preventDefault();
@@ -181,7 +191,6 @@ export function initCatalogFilters(): void {
   form.addEventListener('reset', (event) => {
     event.preventDefault();
     reset();
-    searchInput.focus();
   });
   categoryInputs.forEach((input) => input.addEventListener('change', update));
   sortSelect.addEventListener('change', update);
@@ -190,15 +199,12 @@ export function initCatalogFilters(): void {
     searchTimer = window.setTimeout(update, 250);
   });
 
-  document.querySelector('[data-empty-reset]')?.addEventListener('click', () => {
-    reset();
-    searchInput.focus();
-  });
+  document.querySelector('[data-empty-reset]')?.addEventListener('click', reset);
 
   loadMore?.addEventListener('click', () => {
     const previousLimit = visibleLimit;
     visibleLimit += PAGE_SIZE;
-    const matching = render({ announce: false });
+    const matching = render();
     // Move focus to the first newly revealed product so keyboard users continue from there.
     matching[previousLimit]?.element.querySelector<HTMLAnchorElement>('a')?.focus();
   });

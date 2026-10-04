@@ -2,8 +2,9 @@
 import EmptyState from '@/components/catalogo/EmptyState.astro';
 import Filtros from '@/components/catalogo/Filtros.astro';
 import ProductGrid from '@/components/catalogo/ProductGrid.astro';
-import Breadcrumbs, { type BreadcrumbItem } from '@/components/layout/Breadcrumbs.astro';
+import type { BreadcrumbItem } from '@/components/layout/Breadcrumbs.astro';
 import Container from '@/components/layout/Container.astro';
+import PageHeader from '@/components/layout/PageHeader.astro';
 import Button from '@/components/ui/Button.astro';
 import BaseLayout from '@/layouts/BaseLayout.astro';
 import { buildBreadcrumbSchema } from '@/utils/jsonld';
@@ -18,32 +19,27 @@ const breadcrumbs: BreadcrumbItem[] = [
 
 <BaseLayout
   title="Catálogo de perfumes y decants originales"
-  description="Explore perfumes originales sellados, decants de 5 y 10 ml y sets corporativos. Filtre por categoría, compare precios en USD y consulte por WhatsApp."
+  description="Perfumes de diseñador y árabes originales, sellados o en decants de 3, 5 y 10 ml, y sets corporativos. Compare precios en USD y solicite su cotización."
   jsonLd={buildBreadcrumbSchema(breadcrumbs)}
 >
-  <section aria-labelledby="catalogo-titulo" class="border-b border-stone bg-sand">
-    <Container class="py-4 lg:py-6">
-      <Breadcrumbs items={breadcrumbs} />
-      <h1 id="catalogo-titulo" class="mt-3 text-4xl">
-        Catálogo de perfumes y decants
-      </h1>
-      <p class="mt-2 max-w-2xl text-lg text-taupe">
-        Fragancias 100 % originales de las casas más reconocidas. Encuentre su favorita y
-        consúltenos por WhatsApp para confirmar disponibilidad y entrega.
-      </p>
-    </Container>
-  </section>
+  <PageHeader
+    id="catalogo-titulo"
+    eyebrow="Catálogo"
+    title="Perfumes y decants originales"
+    description="Fragancias 100 % originales de las casas más reconocidas, selladas o en decants. Encuentre su favorita y solicite información sin compromiso."
+    breadcrumbs={breadcrumbs}
+  />
 
   <Container class="py-4 lg:py-6">
     <Filtros total={products.length} />
 
     <h2 class="sr-only">Resultados</h2>
-    <div class="mt-4">
+    <div class="mt-3">
       <ProductGrid products={products} label="Productos del catálogo" />
       <EmptyState />
       <div class="mt-5 flex flex-col items-center gap-1" hidden data-load-more-wrapper>
-        <p class="text-sm text-taupe" data-load-progress></p>
-        <Button variant="outline" data-load-more>
+        <p class="text-sm text-noir-600" data-load-progress></p>
+        <Button variant="outline" size="lg" data-load-more>
           Cargar más productos
         </Button>
       </div>

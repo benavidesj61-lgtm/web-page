@@ -1,6 +1,12 @@
-import { SITE } from '@/config/site';
+import { SITE } from '@/data/site';
 
-/** Absolute URL for canonical tags, Open Graph and JSON-LD. */
 export function absoluteUrl(path: string): string {
-  return new URL(path, SITE.url).href;
+  return new URL(path, SITE.url).toString();
+}
+
+/** Home only matches itself; every other section also matches its sub-pages. */
+export function isCurrentPath(href: string, pathname: string): boolean {
+  if (href.includes('#')) return false;
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(href);
 }

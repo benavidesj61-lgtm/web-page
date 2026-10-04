@@ -1,38 +1,33 @@
-import { CONTACT, OPENING_HOURS, SITE, SOCIAL_LINKS } from '@/config/site';
 import type { BreadcrumbItem } from '@/components/layout/Breadcrumbs.astro';
-import type { JsonLd } from '@/components/layout/SEO.astro';
-import { CATEGORIES } from '@/data/categories';
-import { getProductUrl, type Product } from './products';
+import { CONTACT, OPENING_HOURS, SITE, SOCIAL_LINKS } from '@/data/site';
 import { absoluteUrl } from './url';
 
-const businessId = `${SITE.url}/#negocio`;
+export type JsonLd = Record<string, unknown>;
+
+export const BUSINESS_ID = `${SITE.url}/#negocio`;
 
 export function buildLocalBusinessSchema(): JsonLd {
+  const { street, city, region, country } = CONTACT.address;
   return {
     '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    '@id': businessId,
+    '@type': 'Store',
+    '@id': BUSINESS_ID,
     name: SITE.name,
     legalName: SITE.legalName,
     description: SITE.description,
-    url: absoluteUrl('/'),
+    url: SITE.url,
     image: absoluteUrl(SITE.defaultOgImage),
     logo: absoluteUrl('/icon-512.png'),
-    telephone: `+${CONTACT.whatsappNumber}`,
+    telephone: CONTACT.phone.e164,
     email: CONTACT.email,
-    priceRange: '$$',
     currenciesAccepted: SITE.currency,
+    priceRange: '$$',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: CONTACT.address.street,
-      addressLocality: CONTACT.address.city,
-      addressRegion: CONTACT.address.region,
-      addressCountry: CONTACT.address.country,
-    },
-    geo: {
-      '@type': 'GeoCoordinates',
-      latitude: CONTACT.geo.latitude,
-      longitude: CONTACT.geo.longitude,
+      ...(street ? { streetAddress: street } : {}),
+      addressLocality: city,
+      addressRegion: region,
+      addressCountry: country,
     },
     areaServed: { '@type': 'Country', name: CONTACT.address.countryName },
     openingHoursSpecification: OPENING_HOURS.map((slot) => ({
@@ -58,30 +53,52 @@ export function buildBreadcrumbSchema(items: readonly BreadcrumbItem[]): JsonLd 
   };
 }
 
-export function buildProductSchema(product: Product, imageUrls: readonly string[]): JsonLd {
-  const { data } = product;
-  const url = absoluteUrl(getProductUrl(product));
+interface ProductSchemaInput {
+  name: string;
+  description: string;
+  url: string;
+  images: readonly string[];
+  brand: string;
+  category: string;
+  sku?: string | undefined;
+  price: number | null;
+  sizeMl?: number | undefined;
+  decants?: readonly { ml: number; precio: number }[] | undefined;
+  available: boolean;
+}
+
+/** One Offer per purchasable presentation (sealed bottle and each decant size). */
+export function buildProductSchema(input: ProductSchemaInput): JsonLd {
+  const url = absoluteUrl(input.url);
+  const availability = `https://schema.org/${input.available ? 'InStock' : 'OutOfStock'}`;
+  const offer = (name: string, price: number, available = input.available) => ({
+    '@type': 'Offer',
+    name,
+    price: price.toFixed(2),
+    priceCurrency: SITE.currency,
+    availability: available ? availability : 'https://schema.org/OutOfStock',
+    url,
+    seller: { '@id': BUSINESS_ID },
+  });
+
+  const offers = [
+    ...(input.price === null
+      ? []
+      : [offer(input.sizeMl ? `Sellado ${input.sizeMl} ml` : input.name, input.price)]),
+    // Decants come from opened bottles, so they stay available when the sealed bottle is sold out.
+    ...(input.decants ?? []).map((decant) => offer(`Decant ${decant.ml} ml`, decant.precio, true)),
+  ];
+
   return {
     '@context': 'https://schema.org',
     '@type': 'Product',
-    '@id': `${url}#producto`,
-    name: data.nombre,
-    description: data.descripcion,
-    image: imageUrls,
-    sku: data.sku ?? data.id,
-    productID: data.id,
-    category: CATEGORIES[data.categoria].name,
-    ...(data.marca && { brand: { '@type': 'Brand', name: data.marca } }),
-    offers: {
-      '@type': 'Offer',
-      url,
-      priceCurrency: SITE.currency,
-      price: data.precio.toFixed(2),
-      availability: data.disponible
-        ? 'https://schema.org/InStock'
-        : 'https://schema.org/OutOfStock',
-      itemCondition: 'https://schema.org/NewCondition',
-      seller: { '@id': businessId },
-    },
+    name: input.name,
+    description: input.description,
+    url,
+    image: input.images.map((image) => absoluteUrl(image)),
+    brand: { '@type': 'Brand', name: input.brand },
+    category: input.category,
+    ...(input.sku ? { sku: input.sku } : {}),
+    ...(offers.length > 0 ? { offers } : {}),
   };
 }

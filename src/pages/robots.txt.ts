@@ -1,8 +1,10 @@
 import type { APIRoute } from 'astro';
-import { absoluteUrl } from '@/utils/url';
 
-// Generated so the sitemap URL always follows SITE.url.
-export const GET: APIRoute = () =>
-  new Response(`User-agent: *\nAllow: /\n\nSitemap: ${absoluteUrl('/sitemap-index.xml')}\n`, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  });
+// /api and /admin are not secret (access control lives on the server); this only keeps them out of search results.
+export const GET: APIRoute = ({ site }) => {
+  const sitemap = new URL('sitemap-index.xml', site).href;
+  return new Response(
+    `User-agent: *\nAllow: /\nDisallow: /api/\nDisallow: /admin/\n\nSitemap: ${sitemap}\n`,
+    { headers: { 'Content-Type': 'text/plain; charset=utf-8' } },
+  );
+};

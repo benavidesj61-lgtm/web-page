@@ -1,13 +1,16 @@
 ---
-import { Font } from 'astro:assets';
 import Footer from '@/components/layout/Footer.astro';
 import Header from '@/components/layout/Header.astro';
-import SEO, { type SeoProps } from '@/components/layout/SEO.astro';
+import SEO, { type SEOProps } from '@/components/layout/SEO.astro';
 import SkipLink from '@/components/layout/SkipLink.astro';
-import { SITE } from '@/config/site';
+import { SITE } from '@/data/site';
+// Bundled into the external stylesheet (no inline @font-face), which keeps style-src strict.
+import '@fontsource-variable/inter/wght.css';
+import '@fontsource-variable/playfair-display/wght.css';
+import interFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 import '@/styles/global.css';
 
-type Props = SeoProps;
+type Props = SEOProps;
 
 const seo = Astro.props;
 ---
@@ -17,20 +20,17 @@ const seo = Astro.props;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <!-- Enables reveal-on-scroll styles only when JS runs, so content is never hidden without it. -->
-    <script is:inline>
-      document.documentElement.classList.add('js');
-    </script>
-    <Font cssVariable="--font-inter" preload />
-    <Font cssVariable="--font-playfair" />
-    <SEO {...seo} />
+    <meta name="theme-color" content="#0a0a0a" />
+    <meta name="format-detection" content="telephone=no" />
+    <link rel="preload" href={interFont} as="font" type="font/woff2" crossorigin />
+
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#0B2545" />
-    <meta name="format-detection" content="telephone=no" />
     <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <SEO {...seo} />
   </head>
   <body class="flex min-h-dvh flex-col">
     <SkipLink />
@@ -39,9 +39,11 @@ const seo = Astro.props;
       <slot />
     </main>
     <Footer />
+
     <script>
-      import { initReveal } from '../scripts/reveal';
+      import { initReveal, updateCurrentYear } from '../scripts/reveal';
       initReveal();
+      updateCurrentYear();
     </script>
   </body>
 </html>

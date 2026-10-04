@@ -3,7 +3,10 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { CATEGORY_SLUGS } from './data/categories';
 
-const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Lowercase words joined by single hyphens; written without nested quantifiers (no ReDoS risk).
+const SLUG_PATTERN = /^(?!-)(?!.*--)[a-z0-9-]+(?<!-)$/;
+const price = (field: string) =>
+  z.number().positive(`El "${field}" debe ser un número mayor que 0 (ej. 45 o 94.95).`);
 
 const productos = defineCollection({
   loader: glob({
@@ -21,15 +24,21 @@ const productos = defineCollection({
           .string()
           .regex(
             SLUG_PATTERN,
-            'El "slug" solo admite minúsculas, números y guiones (ej. mi-perfume-100-ml).',
+            'El "slug" solo admite minúsculas, números y guiones (ej. lattafa-yara-100-ml).',
           ),
         nombre: z.string().min(3, 'El "nombre" debe tener al menos 3 caracteres.'),
-        marca: z.string().optional(),
+        marca: z.string().min(2, 'La "marca" debe tener al menos 2 caracteres.'),
         categoria: z.enum(CATEGORY_SLUGS, {
           error: `La "categoria" debe ser una de: ${CATEGORY_SLUGS.join(', ')}.`,
         }),
-        precio: z.number().positive('El "precio" debe ser un número mayor que 0.'),
-        precioAnterior: z.number().positive().optional(),
+        /** Price of the sealed bottle (or the set). `null` shows "Precio a consultar". */
+        precio: price('precio').nullable(),
+        precioAnterior: price('precioAnterior').optional(),
+        /** Bottle size in ml, shown as "Sellado · 100 ml". */
+        contenidoMl: z.number().int().positive().optional(),
+        decants: z
+          .array(z.object({ ml: z.number().int().positive(), precio: price('decants.precio') }))
+          .optional(),
         descripcion: z
           .string()
           .min(40, 'La "descripcion" debe tener al menos 40 caracteres.')
@@ -54,10 +63,16 @@ const productos = defineCollection({
         etiquetas: z.array(z.string()).optional(),
         sku: z.string().optional(),
       })
-      .refine((data) => data.precioAnterior === undefined || data.precioAnterior > data.precio, {
-        message: 'El "precioAnterior" debe ser mayor que el "precio" para mostrarse como oferta.',
-        path: ['precioAnterior'],
-      }),
+      .refine(
+        (data) =>
+          data.precioAnterior === undefined ||
+          (data.precio !== null && data.precioAnterior > data.precio),
+        {
+          message:
+            'El "precioAnterior" debe ser mayor que el "precio" (y el precio no puede ser null) para mostrarse como oferta.',
+          path: ['precioAnterior'],
+        },
+      ),
 });
 
 export const collections = { productos };

@@ -1,21 +1,22 @@
 ---
-import type { HTMLTag } from 'astro/types';
+import type { HTMLAttributes } from 'astro/types';
 
-interface Props {
-  as?: HTMLTag;
-  size?: 'default' | 'narrow';
+interface Props extends Omit<HTMLAttributes<'div'>, 'class'> {
   class?: string;
+  /** Narrow container for long-form text and forms. */
+  narrow?: boolean;
 }
 
-const { as: Tag = 'div', size = 'default', class: className } = Astro.props;
+const { class: className, narrow = false, ...rest } = Astro.props;
 ---
 
-<Tag
+<div
   class:list={[
     'mx-auto w-full px-2 sm:px-3 lg:px-4',
-    size === 'narrow' ? 'max-w-4xl' : 'max-w-7xl',
+    narrow ? 'max-w-3xl' : 'max-w-7xl',
     className,
   ]}
+  {...rest}
 >
   <slot />
-</Tag>
+</div>

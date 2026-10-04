@@ -1,33 +1,32 @@
 ---
-import { buildWhatsAppUrl } from '@/utils/whatsapp';
+import { CONTACT } from '@/data/site';
+import { PHONE_HREF } from '@/utils/contact';
 import Container from '../layout/Container.astro';
 import Button from '../ui/Button.astro';
-import Icon from '../ui/Icon.astro';
+import Texture from '../ui/Texture.astro';
 ---
 
-<section aria-labelledby="cta-titulo" class="py-8 lg:py-12">
-  <Container>
-    <div
-      class="on-dark relative overflow-hidden rounded-lg bg-navy-900 px-3 py-6 text-center sm:px-6 lg:py-8"
-      data-reveal
-    >
-      <div class="mx-auto h-0.5 w-6 bg-gold-500" aria-hidden="true"></div>
-      <h2 id="cta-titulo" class="mx-auto mt-3 max-w-2xl text-4xl text-white">
-        ¿Busca el regalo perfecto o su nueva fragancia insignia?
-      </h2>
-      <p class="mx-auto mt-2 max-w-xl text-lg text-mist">
-        Cuéntenos para quién es y en qué ocasión se usará. Le recomendamos opciones a su medida, sin
-        compromiso.
-      </p>
-      <div class="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
-        <Button href={buildWhatsAppUrl()} external variant="accent" size="lg">
-          <Icon name="whatsapp" class="size-2.5" />
-          Recibir asesoría por WhatsApp
-        </Button>
-        <Button href="/catalogo/" variant="outline-light" size="lg">
-          Explorar el catálogo
-        </Button>
-      </div>
+<section
+  aria-labelledby="cta-titulo"
+  class="on-dark relative isolate overflow-hidden border-b border-noir-800 bg-noir-950 py-8 lg:py-12"
+>
+  <Texture />
+  <Container class="relative text-center" data-reveal>
+    <p class="eyebrow text-noir-300">Cotizaciones para empresas y particulares</p>
+    <h2 id="cta-titulo" class="mx-auto mt-2 max-w-3xl text-4xl">
+      Cuéntenos qué necesita y le enviamos una propuesta a la medida
+    </h2>
+    <p class="mx-auto mt-3 max-w-2xl text-lg text-noir-200">
+      Regalos corporativos, pedidos por volumen o una recomendación personal: complete el formulario
+      y un asesor le responderá en un plazo máximo de un día hábil.
+    </p>
+    <div class="mt-4 flex flex-col justify-center gap-2 sm:flex-row">
+      <Button href="/contacto/" variant="light" size="lg">
+        Solicitar cotización
+      </Button>
+      <Button href={PHONE_HREF} variant="outline-light" size="lg">
+        Llamar al {CONTACT.phone.display}
+      </Button>
     </div>
   </Container>
 </section>

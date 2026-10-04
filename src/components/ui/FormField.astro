@@ -1,15 +1,25 @@
 ---
+import type { HTMLAttributes } from 'astro/types';
+
+export interface SelectOptionGroup {
+  label: string;
+  options: readonly { value: string; label: string }[];
+}
+
 interface Props {
   id: string;
   name: string;
   label: string;
   type?: 'text' | 'email' | 'tel' | 'textarea' | 'select';
-  hint?: string;
   required?: boolean;
-  autocomplete?: string;
-  inputmode?: 'text' | 'email' | 'tel';
+  autocomplete?: HTMLAttributes<'input'>['autocomplete'];
+  inputmode?: HTMLAttributes<'input'>['inputmode'];
   placeholder?: string;
-  options?: readonly string[];
+  hint?: string;
+  /** Select only: first, empty option label. */
+  emptyOption?: string;
+  groups?: readonly SelectOptionGroup[];
+  maxlength?: number;
   class?: string;
 }
 
@@ -18,12 +28,14 @@ const {
   name,
   label,
   type = 'text',
-  hint,
   required = false,
   autocomplete,
   inputmode,
   placeholder,
-  options = [],
+  hint,
+  emptyOption,
+  groups = [],
+  maxlength,
   class: className,
 } = Astro.props;
 
@@ -31,26 +43,21 @@ const hintId = hint ? `${id}-ayuda` : undefined;
 const errorId = `${id}-error`;
 const describedBy = [hintId, errorId].filter(Boolean).join(' ');
 const controlClass =
-  'mt-1 w-full rounded-md border border-stone bg-white px-2 text-base text-ink placeholder:text-taupe hover:border-taupe focus:border-navy-900 aria-invalid:border-danger aria-invalid:bg-danger/5';
+  'mt-0.5 block w-full rounded-xs border border-noir-400 bg-white px-2 text-base text-noir-950 placeholder:text-noir-500 hover:border-noir-700 focus-visible:border-noir-950 aria-invalid:border-danger aria-invalid:outline-danger disabled:cursor-not-allowed disabled:bg-noir-100 disabled:text-noir-500';
 ---
 
 <div class={className} data-field={name}>
-  <label for={id} class="block text-sm font-semibold text-navy-900">
+  <label for={id} class="text-sm font-medium text-noir-950">
     {label}
     {required ? (
-      <span class="text-danger" aria-hidden="true">
-        {' '}
+      <span class="ml-0.5 text-danger" aria-hidden="true">
         *
       </span>
     ) : (
-      <span class="font-normal text-taupe"> (opcional)</span>
+      <span class="ml-0.5 font-normal text-noir-500">(opcional)</span>
     )}
   </label>
-  {hint && (
-    <p id={hintId} class="mt-0.5 text-sm text-taupe">
-      {hint}
-    </p>
-  )}
+
   {type === 'textarea' ? (
     <textarea
       id={id}
@@ -58,18 +65,25 @@ const controlClass =
       rows="5"
       required={required}
       placeholder={placeholder}
+      maxlength={maxlength}
       aria-describedby={describedBy}
-      class:list={[controlClass, 'min-h-16 py-1.5']}
+      class:list={[controlClass, 'min-h-15 py-1.5']}
     />
   ) : type === 'select' ? (
     <select
       id={id}
       name={name}
+      required={required}
       aria-describedby={describedBy}
-      class:list={[controlClass, 'min-h-6 cursor-pointer']}
+      class:list={[controlClass, 'min-h-6']}
     >
-      {options.map((option) => (
-        <option value={option}>{option}</option>
+      {emptyOption && <option value="">{emptyOption}</option>}
+      {groups.map((group) => (
+        <optgroup label={group.label}>
+          {group.options.map((option) => (
+            <option value={option.value}>{option.label}</option>
+          ))}
+        </optgroup>
       ))}
     </select>
   ) : (
@@ -81,9 +95,20 @@ const controlClass =
       autocomplete={autocomplete}
       inputmode={inputmode}
       placeholder={placeholder}
+      maxlength={maxlength}
       aria-describedby={describedBy}
       class:list={[controlClass, 'min-h-6']}
     />
   )}
-  <p id={errorId} class="mt-0.5 text-sm font-medium text-danger" data-error></p>
+
+  {hint && (
+    <p id={hintId} class="mt-0.5 text-sm text-noir-500">
+      {hint}
+    </p>
+  )}
+  <p
+    id={errorId}
+    class="mt-0.5 flex gap-0.5 text-sm font-medium text-danger empty:hidden"
+    data-error
+  ></p>
 </div>

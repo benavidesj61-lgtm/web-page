@@ -8,32 +8,41 @@ export interface BreadcrumbItem {
 
 interface Props {
   items: readonly BreadcrumbItem[];
-  class?: string;
+  dark?: boolean;
 }
 
-const { items, class: className } = Astro.props;
+const { items, dark = false } = Astro.props;
+const lastIndex = items.length - 1;
 ---
 
-<nav aria-label="Migas de pan" class={className}>
-  <ol class="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-taupe">
-    {items.map((item, index) => {
-      const isLast = index === items.length - 1;
-      return (
-        <li class="flex items-center gap-1">
-          {isLast ? (
-            <span aria-current="page" class="font-medium text-ink">
+<nav aria-label="Migas de pan">
+  <ol
+    class:list={[
+      'flex flex-wrap items-center gap-1 text-sm',
+      dark ? 'text-noir-300' : 'text-noir-500',
+    ]}
+  >
+    {items.map((item, index) => (
+      <li class="flex items-center gap-1">
+        {index === lastIndex ? (
+          <span aria-current="page" class:list={[dark ? 'text-white' : 'text-noir-950']}>
+            {item.label}
+          </span>
+        ) : (
+          <>
+            <a
+              href={item.href}
+              class:list={[
+                'underline-offset-4 hover:underline',
+                dark ? 'hover:text-white' : 'hover:text-noir-950',
+              ]}
+            >
               {item.label}
-            </span>
-          ) : (
-            <>
-              <a href={item.href} class="underline-offset-4 hover:text-navy-900 hover:underline">
-                {item.label}
-              </a>
-              <Icon name="chevron-right" class="size-1.5 text-taupe" />
-            </>
-          )}
-        </li>
-      );
-    })}
+            </a>
+            <Icon name="chevron-right" class="size-1.5" />
+          </>
+        )}
+      </li>
+    ))}
   </ol>
 </nav>

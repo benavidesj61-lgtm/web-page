@@ -9,16 +9,16 @@ interface Props {
 const { variant = 'neutral', class: className } = Astro.props;
 
 const VARIANTS: Record<BadgeVariant, string> = {
-  new: 'bg-navy-900 text-white',
-  sale: 'bg-gold-500 text-navy-950',
-  soldout: 'bg-white text-ink ring-1 ring-stone',
-  neutral: 'bg-sand text-taupe',
+  new: 'bg-white text-noir-950 border border-noir-950',
+  sale: 'bg-noir-950 text-white border border-noir-950',
+  soldout: 'bg-noir-200 text-noir-800 border border-noir-200',
+  neutral: 'bg-noir-50 text-noir-700 border border-noir-200',
 };
 ---
 
 <span
   class:list={[
-    'inline-flex items-center rounded-sm px-1 py-0.5 text-xs font-semibold tracking-wider uppercase',
+    'inline-flex items-center rounded-xs px-1 py-0.5 text-[0.6875rem] leading-none font-semibold tracking-[0.16em] uppercase',
     VARIANTS[variant],
     className,
   ]}

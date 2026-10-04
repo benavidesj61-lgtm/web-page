@@ -1,33 +1,27 @@
 ---
-import { SITE } from '@/config/site';
+import { SITE } from '@/data/site';
 
 interface Props {
-  onDark?: boolean;
   class?: string;
+  /** Hides the tagline entirely. */
+  compact?: boolean;
+  /** Hides the tagline between 1024 and 1279 px, where the desktop nav needs the room. */
+  collapseTagline?: boolean;
 }
 
-const { onDark = false, class: className } = Astro.props;
+const { class: className, compact = false, collapseTagline = false } = Astro.props;
 ---
 
-<a
-  href="/"
-  class:list={['inline-flex flex-col leading-none whitespace-nowrap', className]}
-  aria-label={`${SITE.name}, ir al inicio`}
->
-  <span
-    class:list={[
-      'font-display text-2xl font-semibold tracking-[0.25em]',
-      onDark ? 'text-white' : 'text-navy-900',
-    ]}
-  >
-    LE SCENT
-  </span>
-  <span
-    class:list={[
-      'mt-0.5 text-[0.625rem] font-medium tracking-[0.35em] uppercase',
-      onDark ? 'text-gold-300' : 'text-gold-700',
-    ]}
-  >
-    Perfumería original
-  </span>
+<a href="/" class:list={['inline-flex flex-col items-start leading-none text-white', className]}>
+  <span class="font-display text-2xl tracking-[0.22em]">{SITE.name}</span>
+  {!compact && (
+    <span
+      class:list={[
+        'mt-0.5 text-[0.625rem] font-medium tracking-eyebrow whitespace-nowrap text-noir-300 uppercase',
+        collapseTagline && 'lg:max-xl:hidden',
+      ]}
+    >
+      {SITE.tagline}
+    </span>
+  )}
 </a>
