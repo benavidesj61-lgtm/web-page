@@ -24,12 +24,12 @@ export const CONTACT = {
     /** E.164 format, used for tel: links and structured data. */
     e164: '+50375292926',
   },
-  email: 'lescetsv@gmail.com',
+  email: 'lescentsv@gmail.com',
   address: {
     /** Leave empty to show only the city; the map and JSON-LD adapt automatically. */
     street: '',
-    city: 'San Salvador',
-    region: 'San Salvador',
+    city: 'Santa Tecla',
+    region: 'La Libertad',
     country: 'SV',
     countryName: 'El Salvador',
   },

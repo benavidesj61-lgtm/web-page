@@ -1,0 +1,9 @@
+#!/bin/sh
+# Blocks any commit whose staged changes contain a secret (API keys, tokens, private keys).
+# Installed automatically by `npm install` (see the "prepare" script).
+if ! command -v gitleaks >/dev/null 2>&1; then
+  echo "✖ gitleaks no está instalado y es obligatorio para hacer commits." >&2
+  echo "  Instálelo: https://github.com/gitleaks/gitleaks#installing" >&2
+  exit 1
+fi
+exec gitleaks git --pre-commit --staged --redact --no-banner

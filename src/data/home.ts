@@ -46,33 +46,6 @@ export const BENEFITS: readonly Benefit[] = [
   },
 ];
 
-export interface Testimonial {
-  quote: string;
-  name: string;
-  role: string;
-}
-
-export const TESTIMONIALS: readonly Testimonial[] = [
-  {
-    quote:
-      'Pedimos 40 sets de decants para nuestros clientes de fin de año. La presentación fue impecable y la entrega llegó a tiempo. Ya estamos planificando el siguiente pedido.',
-    name: 'Andrea M.',
-    role: 'Gerente de Mercadeo, empresa de servicios financieros',
-  },
-  {
-    quote:
-      'Los decants me permitieron probar tres perfumes antes de decidirme por el frasco completo. Excelente asesoría, muy profesionales y honestos con cada recomendación.',
-    name: 'Ricardo H.',
-    role: 'Cliente particular, San Salvador',
-  },
-  {
-    quote:
-      'Necesitábamos un reconocimiento especial para nuestro equipo directivo. Nos ayudaron a elegir fragancias según cada perfil y el resultado superó las expectativas.',
-    name: 'Carolina V.',
-    role: 'Directora de Recursos Humanos, empresa industrial',
-  },
-];
-
 export const FAQ_ITEMS: readonly AccordionItem[] = [
   {
     question: '¿Los perfumes son originales?',

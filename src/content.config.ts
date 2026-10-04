@@ -3,7 +3,8 @@ import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { CATEGORY_SLUGS } from './data/categories';
 
-const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+// Lowercase words joined by single hyphens; written without nested quantifiers (no ReDoS risk).
+const SLUG_PATTERN = /^(?!-)(?!.*--)[a-z0-9-]+(?<!-)$/;
 const price = (field: string) =>
   z.number().positive(`El "${field}" debe ser un número mayor que 0 (ej. 45 o 94.95).`);
 
