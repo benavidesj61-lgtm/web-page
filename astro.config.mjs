@@ -3,17 +3,20 @@ import { defineConfig, fontProviders } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import tailwindcss from '@tailwindcss/vite';
 
-// Keep in sync with SITE.url in src/config/site.ts (config files cannot import TS modules reliably).
+// Keep in sync with SITE.url in src/data/site.ts (config files cannot import TS modules reliably).
 const SITE_URL = 'https://lescent.com.sv';
+
+// Pages that must never be indexed: excluded from the sitemap and marked noindex in their layout.
+const NOINDEX_PATHS = ['/gracias/', '/404/'];
 
 export default defineConfig({
   site: SITE_URL,
   output: 'static',
-  // Directory output works the same on Netlify, Vercel and any static host; URLs end in "/".
+  // Directory output behaves the same on Netlify, Vercel and any static host; URLs end in "/".
   trailingSlash: 'always',
   integrations: [
     sitemap({
-      filter: (page) => !page.includes('/404'),
+      filter: (page) => !NOINDEX_PATHS.some((path) => new URL(page).pathname === path),
     }),
   ],
   fonts: [

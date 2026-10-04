@@ -1,26 +1,14 @@
 ---
-import Benefits from '@/components/home/Benefits.astro';
-import Faq from '@/components/home/Faq.astro';
-import FeaturedCategories from '@/components/home/FeaturedCategories.astro';
-import FeaturedProducts from '@/components/home/FeaturedProducts.astro';
-import FinalCta from '@/components/home/FinalCta.astro';
-import Hero from '@/components/home/Hero.astro';
-import Testimonials from '@/components/home/Testimonials.astro';
-import { SITE } from '@/config/site';
-import BaseLayout from '@/layouts/BaseLayout.astro';
-import { buildLocalBusinessSchema } from '@/utils/jsonld';
+import '@/styles/global.css';
 ---
 
-<BaseLayout
-  title="Perfumes y decants originales en El Salvador"
-  description={SITE.description}
-  jsonLd={buildLocalBusinessSchema()}
->
-  <Hero />
-  <FeaturedCategories />
-  <FeaturedProducts />
-  <Benefits />
-  <Testimonials />
-  <Faq />
-  <FinalCta />
-</BaseLayout>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LE SCENT</title>
+  </head>
+  <body>
+    <h1>LE SCENT</h1>
+  </body>
+</html>

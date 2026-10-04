@@ -10,6 +10,7 @@ export default defineConfig(
   ...tseslint.configs.strict,
   ...tseslint.configs.stylistic,
   ...astro.configs.recommended,
+  // Uses eslint-plugin-jsx-a11y-x, the ESLint 10 compatible fork of eslint-plugin-jsx-a11y.
   ...astro.configs['jsx-a11y-strict'],
   {
     languageOptions: {
