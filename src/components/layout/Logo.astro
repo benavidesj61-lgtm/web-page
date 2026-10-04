@@ -3,21 +3,24 @@ import { SITE } from '@/data/site';
 
 interface Props {
   class?: string;
-  /** Hides the tagline on very small headers. */
+  /** Hides the tagline entirely. */
   compact?: boolean;
+  /** Hides the tagline between 1024 and 1279 px, where the desktop nav needs the room. */
+  collapseTagline?: boolean;
 }
 
-const { class: className, compact = false } = Astro.props;
+const { class: className, compact = false, collapseTagline = false } = Astro.props;
 ---
 
-<a
-  href="/"
-  class:list={['inline-flex flex-col items-start leading-none text-white', className]}
-  aria-label={`${SITE.name}, ir al inicio`}
->
+<a href="/" class:list={['inline-flex flex-col items-start leading-none text-white', className]}>
   <span class="font-display text-2xl tracking-[0.22em]">{SITE.name}</span>
   {!compact && (
-    <span class="mt-0.5 text-[0.625rem] font-medium tracking-eyebrow text-noir-300 uppercase">
+    <span
+      class:list={[
+        'mt-0.5 text-[0.625rem] font-medium tracking-eyebrow whitespace-nowrap text-noir-300 uppercase',
+        collapseTagline && 'lg:max-xl:hidden',
+      ]}
+    >
       {SITE.tagline}
     </span>
   )}

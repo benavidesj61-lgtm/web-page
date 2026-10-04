@@ -8,15 +8,15 @@ import Logo from './Logo.astro';
 
 const { pathname } = Astro.url;
 const navLinkClass =
-  'relative inline-flex min-h-6 items-center text-sm tracking-[0.12em] text-noir-300 uppercase hover:text-white aria-[current=page]:text-white after:absolute after:inset-x-0 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 aria-[current=page]:after:scale-x-100';
+  'relative inline-flex min-h-6 items-center text-sm tracking-[0.08em] text-noir-300 xl:tracking-[0.12em] uppercase hover:text-white aria-[current=page]:text-white after:absolute after:inset-x-0 after:bottom-1 after:h-px after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-200 after:ease-out hover:after:scale-x-100 aria-[current=page]:after:scale-x-100';
 ---
 
 <header class="on-dark sticky top-0 z-50 bg-noir-950 shadow-header" data-site-header>
   <Container class="flex h-9 items-center justify-between gap-3 lg:h-10">
-    <Logo />
+    <Logo collapseTagline />
 
     <nav aria-label="Principal" class="hidden lg:block">
-      <ul class="flex items-center gap-4">
+      <ul class="flex items-center gap-2 xl:gap-4">
         {NAV_ITEMS.map((item) => (
           <li>
             <a
@@ -32,7 +32,7 @@ const navLinkClass =
     </nav>
 
     <div class="hidden lg:block">
-      <Button href="/contacto/" variant="light">
+      <Button href="/contacto/" variant="light" class="px-2 whitespace-nowrap xl:px-3">
         Solicitar cotización
       </Button>
     </div>
