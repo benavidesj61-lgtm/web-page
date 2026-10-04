@@ -1,0 +1,24 @@
+---
+import type { HTMLTag } from 'astro/types';
+
+interface Props {
+  as?: HTMLTag;
+  /** Adds the hover lift used for clickable cards. */
+  interactive?: boolean;
+  class?: string;
+}
+
+const { as: Tag = 'article', interactive = false, class: className } = Astro.props;
+---
+
+<Tag
+  class:list={[
+    'relative flex flex-col rounded-lg bg-white shadow-card',
+    // Shadow is faded in through a pseudo-element so only opacity is animated.
+    interactive &&
+      'group after:pointer-events-none after:absolute after:inset-0 after:rounded-lg after:opacity-0 after:shadow-card-hover after:transition-opacity after:duration-300 after:ease-out hover:after:opacity-100 focus-within:after:opacity-100',
+    className,
+  ]}
+>
+  <slot />
+</Tag>

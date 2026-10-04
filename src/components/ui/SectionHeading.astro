@@ -1,0 +1,46 @@
+---
+interface Props {
+  title: string;
+  eyebrow?: string;
+  description?: string;
+  level?: 'h1' | 'h2' | 'h3';
+  align?: 'left' | 'center';
+  /** Use on navy backgrounds. */
+  onDark?: boolean;
+  id?: string;
+  class?: string;
+}
+
+const {
+  title,
+  eyebrow,
+  description,
+  level: Heading = 'h2',
+  align = 'left',
+  onDark = false,
+  id,
+  class: className,
+} = Astro.props;
+---
+
+<div class:list={['max-w-2xl', align === 'center' && 'mx-auto text-center', className]}>
+  {eyebrow && (
+    <p
+      class:list={[
+        'mb-1 text-sm font-semibold tracking-[0.2em] uppercase',
+        onDark ? 'text-gold-300' : 'text-gold-700',
+      ]}
+    >
+      {eyebrow}
+    </p>
+  )}
+  <Heading
+    id={id}
+    class:list={[Heading === 'h1' ? 'text-4xl' : 'text-3xl', onDark && 'text-white']}
+  >
+    {title}
+  </Heading>
+  {description && (
+    <p class:list={['mt-2 text-lg', onDark ? 'text-mist' : 'text-taupe']}>{description}</p>
+  )}
+</div>

@@ -1,0 +1,33 @@
+---
+import { SITE } from '@/config/site';
+
+interface Props {
+  onDark?: boolean;
+  class?: string;
+}
+
+const { onDark = false, class: className } = Astro.props;
+---
+
+<a
+  href="/"
+  class:list={['inline-flex flex-col leading-none whitespace-nowrap', className]}
+  aria-label={`${SITE.name}, ir al inicio`}
+>
+  <span
+    class:list={[
+      'font-display text-2xl font-semibold tracking-[0.25em]',
+      onDark ? 'text-white' : 'text-navy-900',
+    ]}
+  >
+    LE SCENT
+  </span>
+  <span
+    class:list={[
+      'mt-0.5 text-[0.625rem] font-medium tracking-[0.35em] uppercase',
+      onDark ? 'text-gold-300' : 'text-gold-700',
+    ]}
+  >
+    Perfumería original
+  </span>
+</a>

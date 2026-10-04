@@ -1,0 +1,39 @@
+---
+import Icon from '../ui/Icon.astro';
+
+export interface BreadcrumbItem {
+  label: string;
+  href: string;
+}
+
+interface Props {
+  items: readonly BreadcrumbItem[];
+  class?: string;
+}
+
+const { items, class: className } = Astro.props;
+---
+
+<nav aria-label="Migas de pan" class={className}>
+  <ol class="flex flex-wrap items-center gap-x-1 gap-y-0.5 text-sm text-taupe">
+    {items.map((item, index) => {
+      const isLast = index === items.length - 1;
+      return (
+        <li class="flex items-center gap-1">
+          {isLast ? (
+            <span aria-current="page" class="font-medium text-ink">
+              {item.label}
+            </span>
+          ) : (
+            <>
+              <a href={item.href} class="underline-offset-4 hover:text-navy-900 hover:underline">
+                {item.label}
+              </a>
+              <Icon name="chevron-right" class="size-1.5 text-taupe" />
+            </>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</nav>

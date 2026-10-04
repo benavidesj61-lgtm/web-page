@@ -1,0 +1,14 @@
+---
+interface Props {
+  target?: string;
+}
+
+const { target = 'contenido' } = Astro.props;
+---
+
+<a
+  href={`#${target}`}
+  class="sr-only z-100 rounded-md bg-navy-900 px-3 py-1.5 font-semibold text-white focus:not-sr-only focus:fixed focus:top-2 focus:left-2"
+>
+  Saltar al contenido
+</a>

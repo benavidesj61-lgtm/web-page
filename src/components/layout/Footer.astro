@@ -1,0 +1,125 @@
+---
+import { CONTACT, OPENING_HOURS, SITE, SOCIAL_LINKS } from '@/config/site';
+import { CATEGORY_LIST } from '@/data/categories';
+import { buildWhatsAppUrl } from '@/utils/whatsapp';
+import Icon from '../ui/Icon.astro';
+import Container from './Container.astro';
+import Logo from './Logo.astro';
+
+// Build-time year: the site is rebuilt on every content change, which keeps it current.
+const year = new Date().getFullYear();
+
+const companyLinks = [
+  { label: 'Inicio', href: '/' },
+  { label: 'Catálogo completo', href: '/catalogo/' },
+  { label: 'Por qué elegirnos', href: '/#por-que-elegirnos' },
+  { label: 'Preguntas frecuentes', href: '/#preguntas-frecuentes' },
+  { label: 'Contacto', href: '/contacto/' },
+];
+
+const linkClass = 'text-mist hover:text-white hover:underline underline-offset-4';
+---
+
+<footer class="on-dark bg-navy-900 text-mist">
+  <Container class="grid gap-5 py-8 sm:grid-cols-2 lg:grid-cols-12 lg:gap-4">
+    <div class="lg:col-span-4">
+      <Logo onDark />
+      <p class="mt-3 max-w-xs text-sm">{SITE.description}</p>
+      <ul class="mt-3 flex gap-1" aria-label="Redes sociales">
+        {SOCIAL_LINKS.map((social) => (
+          <li>
+            <a
+              href={social.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex size-6 items-center justify-center rounded-full border border-white/25 text-white hover:border-gold-500 hover:text-gold-300"
+            >
+              <Icon name={social.network} class="size-2" />
+              <span class="sr-only">{`${social.label} de ${SITE.name} (abre en una pestaña nueva)`}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <nav aria-labelledby="footer-catalogo" class="lg:col-span-2">
+      <h2
+        id="footer-catalogo"
+        class="font-sans text-sm font-semibold tracking-widest text-white uppercase"
+      >
+        Catálogo
+      </h2>
+      <ul class="mt-2 space-y-1 text-sm">
+        {CATEGORY_LIST.map((category) => (
+          <li>
+            <a href={`/catalogo/?categoria=${category.slug}`} class={linkClass}>
+              {category.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <nav aria-labelledby="footer-empresa" class="lg:col-span-2">
+      <h2
+        id="footer-empresa"
+        class="font-sans text-sm font-semibold tracking-widest text-white uppercase"
+      >
+        LE SCENT
+      </h2>
+      <ul class="mt-2 space-y-1 text-sm">
+        {companyLinks.map((link) => (
+          <li>
+            <a href={link.href} class={linkClass}>
+              {link.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="lg:col-span-4">
+      <h2 class="font-sans text-sm font-semibold tracking-widest text-white uppercase">Contacto</h2>
+      <address class="mt-2 space-y-1.5 text-sm not-italic">
+        <a
+          href={buildWhatsAppUrl()}
+          target="_blank"
+          rel="noopener noreferrer"
+          class:list={['flex items-center gap-1', linkClass]}
+        >
+          <Icon name="whatsapp" class="size-2 text-gold-300" />
+          WhatsApp {CONTACT.whatsappDisplay}
+        </a>
+        <a href={`mailto:${CONTACT.email}`} class:list={['flex items-center gap-1', linkClass]}>
+          <Icon name="mail" class="size-2 text-gold-300" />
+          {CONTACT.email}
+        </a>
+        <p class="flex items-start gap-1">
+          <Icon name="map-pin" class="mt-0.5 size-2 text-gold-300" />
+          <span>
+            {CONTACT.address.street}, {CONTACT.address.city}, {CONTACT.address.countryName}
+          </span>
+        </p>
+      </address>
+      <ul class="mt-2 space-y-0.5 text-sm">
+        {OPENING_HOURS.map((slot) => (
+          <li class="flex items-center gap-1">
+            <Icon name="clock" class="size-2 text-gold-300" />
+            <span>
+              <span class="text-white">{slot.label}:</span> {slot.hours}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  </Container>
+
+  <div class="border-t border-white/10">
+    <Container class="flex flex-col gap-1 py-3 text-xs sm:flex-row sm:items-center sm:justify-between">
+      <p>
+        © {year} {SITE.legalName}. Todos los derechos reservados.
+      </p>
+      <p>Las marcas mencionadas pertenecen a sus respectivos propietarios.</p>
+    </Container>
+  </div>
+</footer>
