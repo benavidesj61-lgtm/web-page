@@ -1,0 +1,53 @@
+---
+import Container from '@/components/layout/Container.astro';
+import Button from '@/components/ui/Button.astro';
+import Icon from '@/components/ui/Icon.astro';
+import Texture from '@/components/ui/Texture.astro';
+import { CONTACT, OPENING_HOURS, SITE } from '@/data/site';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+import { PHONE_HREF } from '@/utils/contact';
+
+const [weekdays] = OPENING_HOURS;
+---
+
+<BaseLayout
+  title="Gracias por su mensaje"
+  description="Recibimos su solicitud. Un asesor de LE SCENT le responderá en breve."
+  noindex
+>
+  <section
+    aria-labelledby="gracias-titulo"
+    class="on-dark relative isolate flex min-h-[70dvh] items-center overflow-hidden bg-noir-950 py-8"
+  >
+    <Texture priority />
+    <Container narrow class="relative text-center">
+      <span class="mx-auto inline-flex size-8 items-center justify-center rounded-full border border-noir-600 text-white">
+        <Icon name="check" class="size-4" />
+      </span>
+      <p class="eyebrow mt-3 text-noir-300">Solicitud recibida</p>
+      <h1 id="gracias-titulo" class="mt-1.5 text-5xl">
+        Gracias por escribirnos
+      </h1>
+      <p class="mx-auto mt-3 max-w-xl text-lg text-noir-200">
+        Recibimos su mensaje correctamente. Un asesor de {SITE.name} lo revisará y le responderá en
+        un plazo máximo de <strong class="font-semibold text-white">{SITE.responseTime}</strong>
+        {weekdays && ` (${weekdays.label.toLowerCase()}, ${weekdays.hours})`}.
+      </p>
+      <p class="mx-auto mt-2 max-w-xl text-noir-300">
+        ¿Es urgente? Llámenos al{' '}
+        <a href={PHONE_HREF} class="text-white underline underline-offset-4 hover:decoration-2">
+          {CONTACT.phone.display}
+        </a>
+        .
+      </p>
+      <div class="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
+        <Button href="/catalogo/" variant="light" size="lg">
+          Seguir viendo el catálogo
+        </Button>
+        <Button href="/" variant="outline-light" size="lg">
+          Volver al inicio
+        </Button>
+      </div>
+    </Container>
+  </section>
+</BaseLayout>

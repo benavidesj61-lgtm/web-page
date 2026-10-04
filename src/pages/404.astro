@@ -1,0 +1,42 @@
+---
+import Container from '@/components/layout/Container.astro';
+import Button from '@/components/ui/Button.astro';
+import Texture from '@/components/ui/Texture.astro';
+import BaseLayout from '@/layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Página no encontrada"
+  description="La página que busca no existe o cambió de dirección. Explore el catálogo de LE SCENT."
+  noindex
+>
+  <section
+    aria-labelledby="error-titulo"
+    class="on-dark relative isolate flex min-h-[70dvh] items-center overflow-hidden bg-noir-950 py-8"
+  >
+    <Texture priority />
+    <Container narrow class="relative text-center">
+      <p
+        class="font-display text-[clamp(5rem,4rem+8vw,10rem)] leading-none text-noir-700"
+        aria-hidden="true"
+      >
+        404
+      </p>
+      <h1 id="error-titulo" class="mt-2 text-4xl">
+        Esta fragancia se evaporó
+      </h1>
+      <p class="mx-auto mt-3 max-w-xl text-lg text-noir-200">
+        La página que busca no existe o cambió de dirección. Le invitamos a explorar el catálogo o a
+        escribirnos si busca algo en particular.
+      </p>
+      <div class="mt-5 flex flex-col justify-center gap-2 sm:flex-row">
+        <Button href="/catalogo/" variant="light" size="lg">
+          Ver catálogo
+        </Button>
+        <Button href="/contacto/" variant="outline-light" size="lg">
+          Contáctanos
+        </Button>
+      </div>
+    </Container>
+  </section>
+</BaseLayout>

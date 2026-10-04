@@ -32,6 +32,7 @@ const {
   fullWidth = false,
   class: className,
   external = false,
+  type,
   ...rest
 } = Astro.props;
 
@@ -57,6 +58,9 @@ const SIZES: Record<ButtonSize, string> = {
   lg: 'min-h-7 px-4 text-sm',
 };
 
+// Native buttons default to "submit"; default to "button" so only explicit submits send forms.
+const buttonType = type === 'submit' || type === 'reset' ? type : 'button';
+
 const classes = [
   'inline-flex items-center justify-center gap-1 rounded-xs font-medium tracking-[0.14em] uppercase',
   'transition-transform duration-150 ease-out active:translate-y-px',
@@ -78,7 +82,7 @@ const classes = [
     {external && <span class="sr-only">(abre en una pestaña nueva)</span>}
   </a>
 ) : (
-  <button type="button" class:list={classes} {...rest}>
+  <button type={buttonType} class:list={classes} {...rest}>
     <slot />
   </button>
 )}

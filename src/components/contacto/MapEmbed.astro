@@ -1,0 +1,24 @@
+---
+import { formatAddress, getMapEmbedUrl, getMapLinkUrl } from '@/utils/contact';
+---
+
+<div>
+  <!-- loading="lazy" defers the third-party map until it nears the viewport. -->
+  <iframe
+    src={getMapEmbedUrl()}
+    title={`Mapa de ubicación: ${formatAddress()}`}
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"
+    class="aspect-4/3 w-full border border-noir-100 bg-noir-100 grayscale sm:aspect-video lg:aspect-21/9"
+  ></iframe>
+  <p class="mt-1 text-sm">
+    <a
+      href={getMapLinkUrl()}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="font-medium text-noir-950 underline underline-offset-4 hover:decoration-2"
+    >
+      Abrir en Google Maps<span class="sr-only"> (abre en una pestaña nueva)</span>
+    </a>
+  </p>
+</div>
